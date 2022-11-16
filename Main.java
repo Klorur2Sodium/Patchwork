@@ -1,43 +1,50 @@
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-	public static void main(String[] args) {
-		var board = new GameBoard();
-        board.init();
-        System.out.println(board.toString());
+	private void demoVersion() {
 		
-		/* var scanner = new Scanner(System.in);
-		var pieceHandler = new PieceHandler();
-		var players = List.of(new Player("player1", true, "blue"), new Player("player2", false, "red"));
-		var currentPlayer = players.get(0);
-		
-		pieceHandler.loadPiecesDemo();
-		
-		while (true) {
-			pieceHandler.displayBuyingPhase();
-			currentPlayer.selectPiece(scanner);
-		}
-		
-		try {
-			pieceHandler.loadPieces(Path.of("src/load_pieces"));
-		} catch (IOException e) {
-    	System.err.println(e.getMessage());
-	    System.exit(1);
-	    return;
-		}
-		
-		
-		pieceHandler.displayPiecesBody();
-		pieceHandler.displayPiecesStats();
-		
-		for (int i = 0; i < 15; i++) {
-			currentPlayer.quiltboard().addPieceAutomatically(pieceHandler.pieces().get(0));
-			pieceHandler.pieces().remove(0);
-			currentPlayer.quiltboard().displayGrid();
-		}
-		System.out.println(currentPlayer.quiltboard().nbButtons());
-		 */
 	}
 	
-} 
+	public static void main(String[] args) {
+		var timeBoard = new TimeBoard();
+		var scanner = new Scanner(System.in);
+		var pieceHandler = new PieceHandler();
+		var players = List.of(new Player("player1", "Blue"), new Player("player2", "Red"));
+		var currentPlayer = players.get(0);
+		int playerChoice, nbSpecialTile = 1;
+
+		try {
+			timeBoard.loadTimeBoard(Path.of("src/load_time_board_demo"));
+		} catch (IOException e) {
+			System.err.println(e.getMessage());
+			System.exit(1);
+			scanner.close();
+			return;
+		}
+
+		pieceHandler.loadPiecesDemo();
+		timeBoard.initPlayerPawns(players);
+
+		while (true) {
+			timeBoard.displayTimeBoard();
+			pieceHandler.displayBuyingPhase();
+
+			playerChoice = currentPlayer.buyingPhase(scanner);
+
+			if (playerChoice == 0) {
+				currentPlayer.skipTurn(timeBoard);
+			} else if (currentPlayer.checkEarnPiece(pieceHandler.getPiece(playerChoice - 1))) {
+				var piece = pieceHandler.getPiece(playerChoice - 1);
+				currentPlayer.placingPhaseDemo(piece, scanner);
+				currentPlayer.move(timeBoard, piece.nbMove());
+				pieceHandler.pieces().remove(piece);
+			}
+			currentPlayer = timeBoard.currentPlayer();
+			timeBoard.demarcateTurns();
+		}
+	}
+
+}

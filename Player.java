@@ -3,78 +3,131 @@ import java.util.Scanner;
 
 public class Player {
 	private QuiltBoard quiltBoard;
-	//private int nbButtonOnQuiltBoard;
-	private int buttons; /* je crois qu'il demare avce 5 boutons autant le mettre la */
-
-	/* ce que j'avais fais */
+	private int buttons;
 	private final String name;
-	private int wage; /* les boutons qu'il a sur le plateau c'es en gros sonsalair c'est plus court */
+	private int wage;
 	private Pawn pawn;
-	private boolean isPlayerTurn; /* c'est lui qui avance */
+	boolean specialTile;
 
-	public Player(String n, boolean move, String color) {
-		/* ce qsue j'avais fais */
-		Objects.requireNonNull(n);
-		Objects.requireNonNull(move);
-		name = n;
+	public Player(String name, String color) {
+		Objects.requireNonNull(name);
+		Objects.requireNonNull(color);
+		this.name = name;
 		wage = 0;
 		buttons = 5;
 		pawn = new Pawn(color);
-		isPlayerTurn = move;
-		
-		/* */
+		specialTile = false;
+
 		quiltBoard = new QuiltBoard();
-		//nbButtonOnQuiltBoard = 0; /* = wage */
 	}
 
-	private boolean check(int value) {
-		Objects.requireNonNull(value);
-		return value >= 0;
+	public Pawn pawn() {
+		return pawn;
 	}
 
-	public void switchTurn() {
-		isPlayerTurn = !isPlayerTurn;
+	public int buttons() {
+		return buttons;
 	}
-	
-	public void earnPiece(int nbButtons, int price) {
-		if (check(nbButtons) && check(price)) {
-			buttons -= price;
-			wage += nbButtons;
+
+	public QuiltBoard quiltboard() {
+		return quiltBoard;
+	}
+
+	public boolean checkEarnPiece(Piece piece) {
+		if (buttons >= piece.cost()) {
+			return true;
 		}
+		return false;
 	}
 
 	public void pay() {
 		buttons += wage;
 	}
-	
-	/* pourquoi cette fonction est dans cette classe ? */
+
+	public void earnButtons(int nbButtons) {
+		if (nbButtons <= 0) {
+			throw new IllegalArgumentException("The player must gain a positive amount of buttons");
+		}
+		buttons += nbButtons;
+	}
+
+	public void skipTurn(TimeBoard timeBoard) {
+		Objects.requireNonNull(timeBoard);
+
+		while (this == timeBoard.currentPlayer()) {
+			move(timeBoard, 1);
+			earnButtons(1);
+		}
+	}
+
+	public void move(TimeBoard timeBoard, int nbMove) {
+		Objects.requireNonNull(timeBoard);
+
+		for (int i = 0; i < nbMove; i++) {
+			timeBoard.movePawn(this);
+			timeBoard.board().get(this.pawn().pos()).boxEvent(this);
+		}
+	}
+
 	// Methods - Ascii version
-	public void selectPiece(Scanner scanner) {
-		int userChoice;
+	public int buyingPhase(Scanner scanner) {
+		int playerChoice;
 		do {
 			try {
-				System.out.println("Enter 1, 2 or 3 to select the according piece or enter 0 if you don't want to buy any pieces");
-				userChoice = Integer.parseInt(scanner.next());
+				System.out.println(name + "'s turn :\n" + "You currently have " + buttons + " buttons \n"
+						+ "Enter 1, 2 or 3 to select the according piece or enter 0 if you don't want to buy any pieces");
+				playerChoice = Integer.parseInt(scanner.next());
 			} catch (NumberFormatException e) {
-				userChoice = -1;
+				playerChoice = -1;
 			}
-		} while (userChoice < 0 || userChoice > 3);
+		} while (playerChoice < 0 || playerChoice > 3);
+
+		return playerChoice;
+	}
+	
+	public void placingPhaseDemo(Piece piece, Scanner scanner) {
+		String userInput;
+		buttons -= piece.cost();
+		wage += piece.nbButton();
 		
-		System.out.println("fin");
+		do {
+			System.out.println("Do you want to place your piece automaticly y/n");
+			userInput = scanner.next();
+		} while(userInput.equals("y") && userInput.equals("n"));
+		if (userInput.equals("y")) {
+			quiltBoard.addPieceAutomatically(piece);
+			quiltBoard.displayGrid();
+		} else {
+			placingPhase(piece, scanner);
+		}
 	}
 
-	public int getButtons() {
-		return buttons;
+	public void placingPhase(Piece piece, Scanner scanner) {
+		int x, y;
+
+		quiltBoard.displayGrid();
+		piece.displayPiece();
+		do {
+			try {
+				System.out.println("Enter the x coordinate of the top right corner of your piece in the quiltboard");
+				x = Integer.parseInt(scanner.next());
+				System.out.println("Enter the y coordinate of the top right corner of your piece in the quiltboard");
+				y = Integer.parseInt(scanner.next());
+			} catch (NumberFormatException e) {
+				x = -1;
+				y = -1;
+			}
+		} while (!quiltBoard.addPiece(piece, x - 1, y - 1));
+		quiltBoard.displayGrid();
 	}
-	
-	public QuiltBoard getQuiltboard() {
-		return quiltBoard;
+
+	public void displayPayEvent() {
+		System.out.println("You ran on a button and got " + wage + " button(s)");
+		pay();
 	}
-	
+
 	@Override
-    public String toString() {
-        return "name : " + name + ", wages : " + wage + ", buttons : " + buttons + ", " + pawn.toString();
-    }
+	public String toString() {
+		return "name : " + name + ", wages : " + wage + ", buttons : " + buttons + ", " + pawn.toString();
+	}
 }
-
-

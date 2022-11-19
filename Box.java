@@ -1,50 +1,52 @@
-import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Scanner;
+import java.util.ArrayList;
 
-public record Box(char status, ArrayList<Player> players) {
-	public Box {
+public class Box {
+    private final char _status;
+    private ArrayList<Player> _players = new ArrayList<>();
+
+    public Box(char status) {
 		Objects.requireNonNull(status);
-		Objects.requireNonNull(players);
 
-		if (status != '|' && status != '0' && status != 'x') {
-			throw new IllegalArgumentException("status must be equal to |, 0 or x");
-		}
+        switch(status) {
+            case '|' -> _status = status;
+            case '0' -> _status = status;
+            case 'x' -> _status = status;
+            default -> throw new IllegalArgumentException("status must be equal to |, 0 or x");
+        }
 	}
 
-	public Box(char status) {
-		this(status, new ArrayList<Player>());
-	}
-
-	public void add(Player player) {
+    public void add(Player player) {
 		Objects.requireNonNull(player);
-		players.add(player);
+		_players.add(player);
 	}
 
 	public void remove(Player player) {
 		Objects.requireNonNull(player);
-		players.remove(player);
+		_players.remove(player);
 	}
-	
-	public Player getPlayer() {
-		int playersSize = players.size();
+
+    public Player getPlayer() {
+		int playersSize = _players.size();
 		
 		if (playersSize > 0) {
-			return players.get(playersSize - 1);
+			return _players.get(playersSize - 1);
 		}
 		return null;
 	}
 
-	public void boxEvent(Player player) {
+    public void boxEvent(Player player) {
 		Objects.requireNonNull(player);
 		
-		switch (status) {
+		switch (_status) {
 		case '0':
-			player.displayPayEvent();
+		    System.out.println(player);
 			break;
 		case 'x':
-			var patch = new Piece(new int[][] {{1}}, 0, 0, 0);
-			patch.displayPiece();
+            var patch = new Piece();
+            patch.parseLine("1:0:0:0");
+			System.out.println(patch);
 			player.placingPhase(patch, new Scanner(System.in));
 			break;
 		case '|':
@@ -52,4 +54,8 @@ public record Box(char status, ArrayList<Player> players) {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return "" + _status;
+	}
 }

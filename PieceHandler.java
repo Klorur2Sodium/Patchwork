@@ -1,213 +1,147 @@
+import java.util.ArrayList;
+import java.util.Objects;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Objects;
 
-/**
- * This class stores the pieces that are still arround the time board.
- * 
- * @author COUSSON Sophie
- * @author FRAIZE Victor
- */
 public class PieceHandler {
-	private final ArrayList<Piece> pieces;
-	private int neutralPawn;
-	private int numPiecesDisplay;
+	private static final PieceHandler _instance = new PieceHandler();
 	
-	public PieceHandler() {
-		pieces = new ArrayList<Piece>();
-		neutralPawn = 0;
-		numPiecesDisplay = 10;
+    private final ArrayList<Piece> _pieces;
+    private int _piecesDisplayed;
+    private int _posNeutralPawn;
+
+    private PieceHandler() {
+        _pieces = new ArrayList<>();
+        _piecesDisplayed = 10;
+        _posNeutralPawn = 0;
+    }
+    
+    public static PieceHandler Handler() { return _instance; }
+    
+    public int getSize() {return _pieces.size();}
+
+    private int getRealIndex(int index) {
+    	return index < _pieces.size()
+    		? index
+    		: index - _pieces.size();
+    	
+//		if (index >= _pieces.size()) {
+//			return index - _pieces.size();
+//		}
+//		return index;
 	}
 
-	public ArrayList<Piece> pieces() {
-		return pieces;
-	}
-	
-	private int getRealIndex(int index) {
-		if (index >= pieces.size()) {
-			return index - pieces.size();
-		}
-		return index;
-	}
-	
-	public void updateNumPiecesDisplay() {
-		if (numPiecesDisplay < 10) {
-			numPiecesDisplay = pieces.size();
-		}
-	}
+    public boolean add(Piece p) {
+        Objects.requireNonNull(p);
+        return _pieces.add(p);
+    }
 
-	public void add(Piece p) {
-		Objects.requireNonNull(p);
-		pieces.add(p);
-	}
-	
-	public Piece getPiece(int index) {
-		if (index > pieces.size()) {
-			throw new ArrayIndexOutOfBoundsException("Index must be strictly smaller than the size of pieces");
-		}
-		
-		index = getRealIndex(index + neutralPawn);
-		return pieces.get(index);
-	}
+    public void remove(Object p) {
+        Objects.requireNonNull(p);
+        _pieces.remove(p);
+    }
 
-	private int[][] parseBody(String bodyString) {
-		var lenBodyString = bodyString.length();
-		var sizeArray = (int) Math.sqrt(lenBodyString);
-
-		if (Math.pow(sizeArray, 2) != lenBodyString) {
-			throw new IllegalArgumentException();
-		}
-
-		var body = new int[sizeArray][sizeArray];
-		for (int i = 0; i < lenBodyString; i++) {
-			body[i / sizeArray][i % sizeArray] = bodyString.charAt(i) - '0';
-		}
-		return body;
-	}
-
-	private Piece parseLine(String line) {
-		var splitLine = line.split(":");
-
-		var body = parseBody(splitLine[0]);
-		var cost = Integer.parseInt(splitLine[1]);
-		var nbMove = Integer.parseInt(splitLine[2]);
-		var nbButton = Integer.parseInt(splitLine[3]);
-
-		return new Piece(body, cost, nbMove, nbButton);
-	}
-
-	public void loadPieces(Path path) throws IOException {
+    public void loadPieces(Path path) throws IOException {
 		try (var reader = Files.newBufferedReader(path)) {
 			String line;
 			while ((line = reader.readLine()) != null) {
-				pieces.add(parseLine(line));
+                var p = new Piece();
+                p.parseLine(line);
+				_pieces.add(p);
 			}
 		}
 	}
 
-	// Methods for the Ascii/demo version
-	public void loadPiecesDemo() {
-		var nbEachPiece = 20;
-		var pieceBody = new int[][] { { 1, 1 }, { 1, 1 } };
-
-		var piece1 = new Piece(pieceBody, 3, 4, 1);
-		var piece2 = new Piece(pieceBody, 2, 2, 0);
-
-		for (int i = 0; i < nbEachPiece; i++) {
-			add(piece1);
-			add(piece2);
+    public Piece getPiece(int index) {
+		if (index >= _pieces.size()) {
+			throw new ArrayIndexOutOfBoundsException("Index must be strictly smaller than the size of pieces");
 		}
-
-		Collections.shuffle(pieces);
+		
+		index = getRealIndex(index + _posNeutralPawn);
+		return _pieces.get(index);
 	}
+    
+    public void display() {
+    	var boardBuilder = new BoardBuilder();
+    	boardBuilder.display();
+    }
 
-	// Graphic Methods - Ascii version
-	private void printLine(Piece piece, int index, int bodyLength) {
-		for (int i = 0; i < bodyLength && i < bodyLength; i++) {
-			if (piece.body()[index][i] == 0) {
-				System.out.print(' ');
-			} else {
-				System.out.print('x');
-			}
-		}
-	}
+ 
+    private class BoardBuilder {
+    	
+    	private String spacesString(int nbSpaces) {
+    	        var builder = new StringBuilder();
+    			for (int i = 0; i < nbSpaces; i++) {
+    				builder.append(' ');
+    			}
+    	        return builder.toString();
+    	}
+    	
+    	private String displayCaption() {
+            var builder = new StringBuilder();
+            builder.append("Caption :\n");
+            builder.append("  c : cost of the piece\n");
+            builder.append("  m : number of moves the player has to do\n");
+            builder.append("  b : number of buttons on the piece\n");
+    		return builder.toString();
+    	}
+    	
+    	private String displaySelectablePiecesNumber() {
+            var builder = new StringBuilder();
+    		var numberOfSelectablePiece = 3;
 
-	private void printSpaces(int nbSpaces) {
-		for (int i = 0; i < nbSpaces; i++) {
-			System.out.print(' ');
-		}
-	}
-	
-	public int getMaxSize() {
-		var maxSize = 0;
+    		for (int i = 0; i < numberOfSelectablePiece && i < _pieces.size(); i++) {
+                builder.append("(").append(1 + 1).append(")");
+                builder.append(spacesString(_pieces.get(i).getXSize()));
+    		}
+    		builder.append("\n");
+            return builder.toString();
+    	}
+    	
+    	private String bodyString(int index) {
+            return _pieces.get(index).bodyString() + "   ";
+        }
+    	
+    	private String costString(int index) {
+            return "c :" + _pieces.get(index).getCost() + spacesString(_pieces.get(index).getXSize());
+        }
 
-		for (var piece : pieces) {
-			if (piece.body().length > maxSize) {
-				maxSize = piece.body().length;
-			}
-		}
-		return maxSize;
-	}
+        private String movesString(int index) {
+            return "m :" + _pieces.get(index).getMoves() + spacesString(_pieces.get(index).getXSize());	
+        }
 
-	public void displayPiecesBody() {
-		int index;
-		for (int i = 0; i < getMaxSize(); i++) {
-			for (int j = neutralPawn; j < neutralPawn + numPiecesDisplay; j++) {
-				index = getRealIndex(j);
-				var bodyLen = pieces.get(index).body().length;
-
-				if (i < bodyLen) {
-					printLine(pieces.get(index), i, bodyLen);
-				} else {
-					printSpaces(bodyLen);
-				}
-				System.out.print("    ");
-			}
-			System.out.println();
-		}
-	}
-
-	private void displayPiecesCost() {
-		int index;
-		for (int i = neutralPawn; i < neutralPawn + numPiecesDisplay; i++) {
-			index = getRealIndex(i);
-			System.out.print("c: " + pieces.get(index).cost());
-			printSpaces(pieces.get(index).body().length);
-		}
-		System.out.println();
-	}
-
-	private void displayPiecesNbMove() {
-		int index;
-		for (int i = neutralPawn; i < neutralPawn + numPiecesDisplay; i++) {
-			index = getRealIndex(i);
-			System.out.print("m: " + pieces.get(index).nbMove());
-			printSpaces(pieces.get(index).body().length);
-		}
-		System.out.println();
-	}
-
-	private void displayPiecesNbButton() {
-		int index;
-		for (int i = neutralPawn; i < neutralPawn + numPiecesDisplay; i++) {
-			index = getRealIndex(i);
-			System.out.print("b: " + pieces.get(index).nbButton());
-			printSpaces(pieces.get(index).body().length);
-		}
-		System.out.println("\n");
-	}
-
-	private void displaySelectablePiecesNumber() {
-		var numberOfSelectablePiece = 3;
-
-		for (int i = 0; i < numberOfSelectablePiece; i++) {
-			System.out.print("(" + (i + 1) + ") ");
-			printSpaces(pieces.get(i).body().length);
-		}
-		System.out.println();
-	}
-
-	private void displayPiecesStats() {
-		displayPiecesCost();
-		displayPiecesNbMove();
-		displayPiecesNbButton();
-	}
-
-	private void displayCaption() {
-		System.out.println(
-				"Caption :\n" + 
-				"  c : cost of the piece\n" + 
-				"  m : number of moves the player has to do\n" + 
-				"  b : number of buttons on the piece\n");
-	}
-
-	public void displayBuyingPhase() {
-		displayCaption();
-		displaySelectablePiecesNumber();
-		displayPiecesBody();
-		displayPiecesStats();
-	}
+        private String buttonString(int index) {
+            return "b:" + _pieces.get(index).getButtons() + spacesString(_pieces.get(index).getXSize());
+    	}
+        
+        private void displayPieces() {
+        	var body = new StringBuilder();
+        	var cost = new StringBuilder();
+        	var moves = new StringBuilder();
+        	var button = new StringBuilder();
+        	int index;
+        	
+        	for (int i = _posNeutralPawn; i < _posNeutralPawn + _piecesDisplayed && i < _pieces.size(); i++) {
+        		index = getRealIndex(i);
+        		body.append(bodyString(index));
+        		cost.append(costString(index));
+        		moves.append(movesString(index));
+    			button.append(buttonString(index));
+    		}
+        	System.out.println(body.toString());
+        	System.out.println(cost.toString());
+        	System.out.println(moves.toString());
+        	System.out.println(button.toString());
+        }
+    	
+    	
+    	
+    	public void display() {
+    		System.out.println(displayCaption());
+    		System.out.println(displaySelectablePiecesNumber());
+    		displayPieces();
+    		
+    	}
+    }
 }

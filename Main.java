@@ -51,6 +51,7 @@ public class Main {
     private static void initPieceHandler(String file, PieceHandler p, Scanner scanner) {
         try {
         	p.loadPieces(Path.of(file));
+		p.mix();
         } catch (IOException e) {
         	System.err.println(e.getMessage());
         	System.exit(1);

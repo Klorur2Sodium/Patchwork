@@ -15,7 +15,7 @@ public class Piece {
 
     public boolean getBodyValue(int x, int y) {
         return _body[y][x];
-    } 
+    }
     
     private void initPiece(String line) {
     	char[] decomposition = line.toCharArray();
@@ -64,6 +64,22 @@ public class Piece {
         return true;
     }
     
+    public Piece flip() {
+    	var temp = new Piece();
+    	temp._cost = _cost;
+    	temp._moves = _moves;
+    	temp._buttons = _buttons;
+    	temp.xSize = ySize;
+    	temp.ySize = xSize;
+    	temp._body = new boolean[ySize][xSize];
+    	for (int i = xSize-1; i >= 0; i--) {
+    		for (int j = 0; j < ySize; j++) {
+    			temp._body[j][i] = _body[xSize - 1 - i][j];
+    		}
+    	}
+    	return temp;
+    }
+    
     public String bodyString() {
     	var builder = new StringBuilder();
         
@@ -74,5 +90,20 @@ public class Piece {
         	builder.append("\n");
         }
         return builder.toString();
+    }
+    
+    public String bodyLine(int x) {
+    	var builder = new StringBuilder();
+    	if (x >= xSize) {
+    		for (int i = 0; i < xSize; i++) {
+    			builder.append(" ");
+    		}
+    		return builder.toString();
+    	}
+    	
+    	for (int i = 0; i < xSize; i++) {
+    		builder.append(_body[i][x] ? "x" : " ");
+    	}
+    	return builder.toString() + "  ";
     }
 }

@@ -98,7 +98,7 @@ public class Piece {
     		for (int i = 0; i < xSize; i++) {
     			builder.append(" ");
     		}
-    		return builder.toString();
+    		return builder.toString() + "  ";
     	}
     	
     	for (int i = 0; i < xSize; i++) {

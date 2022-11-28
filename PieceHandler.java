@@ -1,3 +1,4 @@
+package projet;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.io.IOException;
@@ -73,9 +74,9 @@ public class PieceHandler {
 		return _pieces.get(index);
 	}
     
-    public void display() {
+    public void display(boolean captions) {
     	var boardBuilder = new BoardBuilder();
-    	boardBuilder.display();
+    	boardBuilder.display(captions);
     }
     
     private class BoardBuilder {
@@ -152,8 +153,10 @@ public class PieceHandler {
     	
     	
     	
-    	public void display() {
-    		System.out.println(displayCaption());
+    	public void display(boolean captions) {
+    		if (captions) {
+    			System.out.println(displayCaption());
+    		}
     		System.out.println(displaySelectablePiecesNumber());
     		displayPieces();
     		

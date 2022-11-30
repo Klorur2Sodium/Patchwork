@@ -103,7 +103,7 @@ public class PieceHandler {
     		var numberOfSelectablePiece = 3;
 
     		for (int i = 0; i < numberOfSelectablePiece && i < _pieces.size(); i++) {
-                builder.append("(").append(1 + 1).append(")");
+                builder.append("(").append(i + 1).append(")");
                 builder.append(spacesString(_pieces.get(i).getXSize()));
     		}
     		builder.append("\n");

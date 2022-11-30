@@ -80,11 +80,6 @@ public class Player {
 		return playerChoice;
 	}
 
-
-
-
-
-
 	public void placingPhaseDemo(Piece piece, Scanner scanner) {
 		String userInput;
 		
@@ -99,12 +94,32 @@ public class Player {
 			placingPhase(piece, scanner);
 		}
 	}
+	
+	private Piece flipPiece(Scanner scan, Piece p) {
+		String res;
+		do {
+			try {
+				System.out.println("Do you want to flip the piece");
+				System.out.println("Enter f if you want to flip it or r if you want to reverse it s if you want to stop");
+				res = scan.next();
+				switch (res) {
+					case "f" -> p = p.flip();
+					case "r" -> p = p.reverse();
+				}
+				System.out.println(p.bodyString());
+			} catch (NumberFormatException e) {
+				return null;
+			}
+		} while (!res.equals("s"));
+		return p;
+	}
 
-	public void placingPhase(Piece piece, Scanner scanner) {
+	private void placingPhase(Piece piece, Scanner scanner) {
 		int x, y;
 
-		System.out.println(_quiltBoard);
-		System.out.println(piece);
+		_quiltBoard.display();
+		System.out.println(piece.bodyString());
+		piece = flipPiece(scanner, piece);
 		do {
 			try {
 				System.out.println("Enter the x coordinate of the top right corner of your piece in the quiltboard");
@@ -116,7 +131,7 @@ public class Player {
 				y = -1;
 			}
 		} while (!_quiltBoard.addPiece(piece, x - 1, y - 1));
-		System.out.println(_quiltBoard);
+		_quiltBoard.display();
 	}
 	
 	public void temp(Piece p, int x, int y) {

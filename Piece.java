@@ -64,17 +64,34 @@ public class Piece {
         return true;
     }
     
-    public Piece flip() {
+    private Piece newPiece(int x, int y) {
     	var temp = new Piece();
     	temp._cost = _cost;
     	temp._moves = _moves;
     	temp._buttons = _buttons;
-    	temp.xSize = ySize;
-    	temp.ySize = xSize;
-    	temp._body = new boolean[ySize][xSize];
+    	temp.xSize = x;
+    	temp.ySize = y;
+    	temp._body = new boolean[x][y];
+    	return temp;
+    }
+    
+    public Piece flip() {
+    	// turns the piece to the left
+    	var temp = newPiece(ySize, xSize);
     	for (int i = xSize-1; i >= 0; i--) {
     		for (int j = 0; j < ySize; j++) {
     			temp._body[j][i] = _body[xSize - 1 - i][j];
+    		}
+    	}
+    	return temp;
+    }
+    
+    public Piece reverse() {
+    	// left becomes right right becomes left
+    	var temp = newPiece(xSize, ySize);
+    	for (int i = 0; i < ySize; i++) {
+    		for (int j = xSize - 1; j >= 0; j--) {
+    			temp._body[xSize - j - 1][i] = _body[j][i];
     		}
     	}
     	return temp;

@@ -40,7 +40,7 @@ public class Main {
 			pieceHandler.display(false);
         }
     }
-
+    
     private static String recoverNames(Scanner scan) {
     	String name1, name2;
     	do {
@@ -98,4 +98,3 @@ public class Main {
         return 0;
     }
 }
-

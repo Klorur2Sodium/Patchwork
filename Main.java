@@ -7,8 +7,9 @@ public class Main {
     	var scanner = new Scanner(System.in);
         var timeBoard = new TimeBoard();
         var pieceHandler = PieceHandler.Handler();
-        // missing  : check if the names aren't the same
-        Player[] players = {new Player(getName(scanner, 1), "Blue"), new Player(getName(scanner, 2), "Red")};
+        String names = recoverNames(scanner);
+        var namesSplit = names.split(",");
+        Player[] players = {new Player(namesSplit[0], "Blue"), new Player(namesSplit[0], "Red")};
         var current = 0;
         var other = 1;
         int playerChoice = 1;
@@ -39,16 +40,22 @@ public class Main {
 			pieceHandler.display(false);
         }
     }
+
+    private static String recoverNames(Scanner scan) {
+    	String name1, name2;
+    	do {
+    		System.out.println("Player 1 please enter your name : ");
+    		name1 = scan.next();
+    		System.out.println("Player 2 please enter your name : ");
+    		name2 = scan.next();
+    	} while (name1.equals(name2));
+    	return name1 + "," + name2;
+    }
     
     private static void game(TimeBoard t, PieceHandler p) {
     	t.displayTimeBoard(true);
     	p.display(true);
     	System.out.println("\nlet's go !!\n");
-    }
-    
-    private static String getName(Scanner scan, int number) {
-    	System.out.println("please enter player" + number + "'s name ");
-    	return scan.next();
     }
 
     private static void initTimeBoard(String file, TimeBoard t, Scanner scanner) {

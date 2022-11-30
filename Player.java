@@ -80,6 +80,8 @@ public class Player {
 		return playerChoice;
 	}
 
+
+
 	public void placingPhaseDemo(Piece piece, Scanner scanner) {
 		String userInput;
 		
@@ -98,18 +100,14 @@ public class Player {
 	private Piece flipPiece(Scanner scan, Piece p) {
 		String res;
 		do {
-			try {
-				System.out.println("Do you want to flip the piece");
-				System.out.println("Enter f if you want to flip it or r if you want to reverse it s if you want to stop");
-				res = scan.next();
-				switch (res) {
-					case "f" -> p = p.flip();
-					case "r" -> p = p.reverse();
-				}
-				System.out.println(p.bodyString());
-			} catch (NumberFormatException e) {
-				return null;
+			System.out.println("Do you want to flip the piece");
+			System.out.println("Enter f if you want to flip it or r if you want to reverse it s if you want to stop");
+			res = scan.next();
+			switch (res) {
+				case "f" -> p = p.flip();
+				case "r" -> p = p.reverse();
 			}
+			System.out.println(p.bodyString());
 		} while (!res.equals("s"));
 		return p;
 	}

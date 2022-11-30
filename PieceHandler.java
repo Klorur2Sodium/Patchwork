@@ -1,4 +1,3 @@
-package projet;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.io.IOException;

@@ -14,16 +14,15 @@ public class QuiltBoard {
 		return _buttons;
 	}
 
-	public int getScore() {
+	public int getEmpty() {
 		var score = 0;
 		for (int i = 0; i < GRID_SIZE; i++) {
 			for (int j = 0; j < GRID_SIZE; j++) {
 				if (!_grid[i][j]) {
-					score -= 2;
+					score++;
 				}
 			}
 		}
-		System.out.println(score);
 		return score;
 	}
 
@@ -56,7 +55,9 @@ public class QuiltBoard {
 		addButtons(piece.getButtons());
 		for (int i = 0; i < piece.getYSize(); i++) {
 			for (int j = 0; j < piece.getXSize(); j++) {
-				_grid[i + y][j + x] = piece.getBodyValue(i, j);
+				if (piece.getBodyValue(i, j)) {
+					_grid[i + y][j + x] = true;
+				}
 			}
 		}
 		return true;

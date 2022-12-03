@@ -11,6 +11,8 @@ public class PieceHandler {
 	private final ArrayList<Piece> _pieces;
 	private int _piecesDisplayed;
 	private int _posNeutralPawn;
+	
+	private final static int selectableNumber = 3; 
 
 	private PieceHandler() {
 		_pieces = new ArrayList<>();
@@ -72,27 +74,48 @@ public class PieceHandler {
 	}
 	
 	
-
 	public void display(boolean captions) {
 		var boardBuilder = new AsciiPieceDisplayer();
 		boardBuilder.display(captions);
 	}
 
+	
+	
+	
 	private class AsciiPieceDisplayer {
-		private String spacesString(int nbSpaces) {
-			var builder = new StringBuilder();
-			for (int i = 0; i < nbSpaces; i++) {
-				builder.append(' ');
-			}
-			return builder.toString();
-		}
+		
 
-		private String displayCaption() {
+		private String Caption() {
 			var builder = new StringBuilder();
 			builder.append("Caption :\n");
 			builder.append("  c : cost of the piece\n");
 			builder.append("  m : number of moves the player has to do\n");
 			builder.append("  b : number of buttons on the piece\n");
+			return builder.toString();
+		}
+		
+		private String displaySelectablePiecesNumber() {
+			var builder = new StringBuilder();
+
+			for (int i = 0; i < selectableNumber && i < _pieces.size(); i++) {
+				builder.append("(").append(i + 1).append(")");
+				builder.append(_pieces.get(i).spacesCaption());
+			}
+			builder.append("\n");
+			return builder.toString();
+		}
+		
+		private String bodyString() {
+			var builder = new StringBuilder();
+			int index;
+			
+			for (int line = 0; line < getBiggestPiece(); line++) {
+				for (int j = 0; j < _piecesDisplayed; j++) {
+					index = getRealIndex(j + _posNeutralPawn);
+					builder.append(_pieces.get(index).bodyLine(line));
+				}
+				builder.append("\n");
+			}
 			return builder.toString();
 		}
 		
@@ -112,42 +135,16 @@ public class PieceHandler {
 			return maxHeight;
 		}
 
-		private String displaySelectablePiecesNumber() {
-			var builder = new StringBuilder();
-			var numberOfSelectablePiece = 3;
-
-			for (int i = 0; i < numberOfSelectablePiece && i < _pieces.size(); i++) {
-				builder.append("(").append(i + 1).append(")");
-				builder.append(spacesString(_pieces.get(i).getXSize()));
-			}
-			builder.append("\n");
-			return builder.toString();
-		}
-
-		private String bodyString() {
-			var builder = new StringBuilder();
-			int index;
-			
-			for (int line = 0; line < getBiggestPiece(); line++) {
-				for (int j = 0; j < _piecesDisplayed; j++) {
-					index = getRealIndex(j + _posNeutralPawn);
-					builder.append(_pieces.get(index).bodyLine(line)).append("  ");
-				}
-				builder.append("\n");
-			}
-			return builder.toString();
-		}
-
 		private String costString(int index) {
-			return "c : " + _pieces.get(index).getCost() + spacesString(_pieces.get(index).getXSize());
+			return "c : " + _pieces.get(index).getCost() + _pieces.get(index).spacesCaption();
 		}
 
 		private String movesString(int index) {
-			return "m : " + _pieces.get(index).getMoves() + spacesString(_pieces.get(index).getXSize());
+			return "m : " + _pieces.get(index).getMoves() + _pieces.get(index).spacesCaption();
 		}
 
 		private String buttonString(int index) {
-			return "b : " + _pieces.get(index).getButtons() + spacesString(_pieces.get(index).getXSize());
+			return "b : " + _pieces.get(index).getButtons() + _pieces.get(index).spacesCaption();
 		}
 
 		private void displayPieces() {
@@ -170,7 +167,7 @@ public class PieceHandler {
 
 		public void display(boolean captions) {
 			if (captions) {
-				System.out.println(displayCaption());
+				System.out.println(Caption());
 			}
 			System.out.println(displaySelectablePiecesNumber());
 			displayPieces();

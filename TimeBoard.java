@@ -27,11 +27,6 @@ public class TimeBoard {
 		return false;
 	}
 
-//	private void add(Character status) {
-//		Objects.requireNonNull(status);
-//		_board.add(status);
-//	}
-
 	private void parseLine(String line) {
 		var boxesStatus = line.split(",");
 
@@ -39,14 +34,6 @@ public class TimeBoard {
 			add(new Box(boxStatus.charAt(0)));
 		}
 	}
-
-//	private void parseLine(String line) {
-//		var boxesStatus = line.split(",");
-//
-//		for (var boxStatus : boxesStatus) {
-//			add(boxStatus.charAt(0));
-//		}
-//	}
 
 	public void loadTimeBoard(Path path) throws IOException {
 		try (var reader = Files.newBufferedReader(path)) {
@@ -109,25 +96,5 @@ public class TimeBoard {
 
 		System.out.println(builder.toString());
 	}
-
-//	public void display(Player one, Player two) {
-//		var builder = new StringBuilder();
-//		builder.append(printNTimes(" _____", _board.size()));
-//		builder.append(printNTimes("|     ", _board.size()));
-//
-//		for (int i = 0; i < _board.size(); i++) {
-//			String asciiPawn = " ";
-//			if (one.getPosition() == i) {
-//				asciiPawn = one.getPawn().toString();
-//			} else if (two.getPosition() == i) {
-//				asciiPawn = two.getPawn().toString();
-//			}
-//			builder.append(_board.get(i)).append("  ").append(asciiPawn).append("  ");
-//		}
-//		builder.append("\n");
-//		builder.append(printNTimes("|_____", _board.size()));
-//
-//		System.out.println(builder.toString());
-//	}
 
 }

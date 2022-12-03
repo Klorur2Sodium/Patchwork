@@ -128,9 +128,32 @@ public class Piece {
 		return builder.toString();
 	}
 
+	public String spacesCaption() {
+		var builder = new StringBuilder();
+		int lenCaption = (_cost < 10)? 4 : 5;
+		if (xSize > lenCaption) {
+			for (int i = 0; i < xSize - lenCaption; i++) {
+				builder.append(" ");
+			}
+		}
+		return builder.toString() + " ";
+	}
+	
+	private String spacesBody() {
+		var space = new StringBuilder();
+		int lenCaption;
+		lenCaption = (_cost < 10)? 4 : 5;
+		if (xSize < lenCaption) {
+			for (int i = 0; i < lenCaption - xSize; i++) {
+				space.append(" ");
+			}
+		}
+		return space.toString() + "  ";
+	}
+	
 	public String bodyLine(int x) {
 		var builder = new StringBuilder();
-		if (x >= xSize) {
+		if (x >= ySize) {
 			for (int i = 0; i < xSize; i++) {
 				builder.append(" ");
 			}
@@ -140,6 +163,6 @@ public class Piece {
 			}
 		}
 
-		return builder.toString() + "  ";
+		return builder.toString() + spacesBody();
 	}
 }

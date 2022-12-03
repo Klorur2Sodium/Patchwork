@@ -4,68 +4,105 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 public class Main {
-	
+
 	public static void main(String[] args) {
 		var scanner = new Scanner(System.in);
 		String chosenVersion;
-		
+
 		do {
 			System.out.println("Enter 'd' to play to the demo ascii version and 'a' for the complete ascii version");
 			chosenVersion = scanner.next();
-		} while(!chosenVersion.equals("d") && !chosenVersion.equals("a"));
-		
-		switch(chosenVersion) {
-		case "d": 
-			playingPhase(scanner, "time_board", "load_phase1"); // a changer 
+		} while (!chosenVersion.equals("d") && !chosenVersion.equals("a"));
+
+		switch (chosenVersion) {
+		case "d":
+			demoVersion(scanner);
 			break;
 		case "a":
-			playingPhase(scanner, "time_board", "load_Normal"); // a changer mauvais plateau
+			completeVersion(scanner);
 			break;
 		}
 	}
-	
-	private static void init(String boardFile, String pieceFile, TimeBoard timeBoard, Scanner scanner, PieceHandler pieceHandler, PlayerHandler players) {
+
+	private static void init(String boardFile, String pieceFile, TimeBoard timeBoard, Scanner scanner,
+		PieceHandler pieceHandler, PlayerHandler players) {
 		initTimeBoard(boardFile, timeBoard, scanner);
 		initPieceHandler(pieceFile, pieceHandler, scanner);
-		players.recoverNames(scanner);
+		players.initPlayersAscii(scanner);
 		timeBoard.initPlayerPawns(players, 2);
-
-		displayGame(timeBoard, pieceHandler); // prints the captions
 	}
-	
-	
-	private static void playingPhase(Scanner scanner, String boardFile, String pieceFile) {
+
+	private static void demoVersion(Scanner scanner) {
 		var timeBoard = new TimeBoard();
-		var pieces = PieceHandler.Handler();
-		var players = new PlayerHandler();
+		var pieceHandler = PieceHandler.Handler();
+		var playerHandler = new PlayerHandler();
+
+		init("load_time_board_demo", "load_phase1", timeBoard, scanner, pieceHandler, playerHandler);
+		
+		displayGame(timeBoard, pieceHandler);
+		playingPhaseDemo(timeBoard, playerHandler, scanner, pieceHandler);
+		playerHandler.displayWinner();
+	}
+
+	private static void playingPhaseDemo(TimeBoard timeBoard, PlayerHandler playerHandler, Scanner scanner, PieceHandler pieceHandler) {
 		int playerChoice;
 		Player currentPlayer;
-		
-		init(boardFile, pieceFile, timeBoard, scanner, pieces, players);
-		
-		while (!timeBoard.checkEndOfGame(players.getPlayers().size())) {
-			players.updateCurrentPlayer();
-			currentPlayer = players.getCurrentPlayer();
+		while (!timeBoard.checkEndOfGame(playerHandler.getPlayers().size())) {
+			playerHandler.updateCurrentPlayer();
+			currentPlayer = playerHandler.getCurrentPlayer();
+			playerChoice = currentPlayer.buyingPhase(scanner, pieceHandler);
 			
-			playerChoice = currentPlayer.buyingPhase(scanner, pieces);
-
 			if (playerChoice == 0) {
-				currentPlayer.skipTurn(players.distanceBetweenPlayers() + 1, timeBoard);
+				currentPlayer.skipTurn(playerHandler.distanceBetweenPlayers() + 1, timeBoard, scanner);
 			} else {
-				currentPlayer.buyPiece(pieces.getPiece(playerChoice - 1), scanner, timeBoard);
-				pieces.remove(pieces.getPiece(playerChoice - 1));
-				pieces.moveNeutralPawn(playerChoice - 1);
+				currentPlayer.buyPieceDemo(pieceHandler.getPiece(playerChoice - 1), scanner, timeBoard);
+				pieceHandler.remove(pieceHandler.getPiece(playerChoice - 1));
+				pieceHandler.moveNeutralPawn(playerChoice - 1);
 			}
 			
 			timeBoard.demarcateTurns();
 			timeBoard.displayTimeBoard(false);
-			pieces.display(false);
+			pieceHandler.display(false);
 		}
-		
-		players.displayWinner();
 	}
 	
-	
+	private static void completeVersion(Scanner scanner) {
+		var timeBoard = new TimeBoard();
+		var pieceHandler = PieceHandler.Handler();
+		var playerHandler = new PlayerHandler();
+		var lastPiece = new Piece();
+		lastPiece.parseLine("11:2:1:0");
+		
+		init("load_time_board", "load_Normal", timeBoard, scanner, pieceHandler, playerHandler);
+		pieceHandler.add(lastPiece);
+		
+		displayGame(timeBoard, pieceHandler);
+		playingPhaseComplete(timeBoard, playerHandler, scanner, pieceHandler);
+		playerHandler.displayWinner();
+	}
+
+	private static void playingPhaseComplete(TimeBoard timeBoard, PlayerHandler playerHandler, Scanner scanner, PieceHandler pieceHandler) {
+		int playerChoice;
+		Player currentPlayer;
+		while (!timeBoard.checkEndOfGame(playerHandler.getPlayers().size())) {
+			playerHandler.updateCurrentPlayer();
+			currentPlayer = playerHandler.getCurrentPlayer();
+			playerChoice = currentPlayer.buyingPhase(scanner, pieceHandler);
+			
+			if (playerChoice == 0) {
+				currentPlayer.skipTurn(playerHandler.distanceBetweenPlayers() + 1, timeBoard, scanner);
+			} else {
+				currentPlayer.buyPieceComplete(pieceHandler.getPiece(playerChoice - 1), scanner, timeBoard);
+				pieceHandler.remove(pieceHandler.getPiece(playerChoice - 1));
+				pieceHandler.moveNeutralPawn(playerChoice - 1);
+				playerHandler.updateSpecialTile();
+			}
+			
+			timeBoard.demarcateTurns();
+			timeBoard.displayTimeBoard(false);
+			pieceHandler.display(false);
+		}
+	}
 
 	private static void displayGame(TimeBoard t, PieceHandler p) {
 		t.displayTimeBoard(true);

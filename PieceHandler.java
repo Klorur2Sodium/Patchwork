@@ -11,8 +11,9 @@ public class PieceHandler {
 	private final ArrayList<Piece> _pieces;
 	private int _piecesDisplayed;
 	private int _posNeutralPawn;
-	
-	private final static int selectableNumber = 3; 
+
+	private final static int selectableNumber = 3;
+	private final static int spacesBetweenPiecesAscii = 10;
 
 	private PieceHandler() {
 		_pieces = new ArrayList<>();
@@ -33,7 +34,7 @@ public class PieceHandler {
 	}
 
 	private int getRealIndex(int index) {
-		return index < _pieces.size() ? index : index - _pieces.size();
+		return (index >= _pieces.size()) ? index - _pieces.size() : index;
 	}
 
 	public boolean add(Piece p) {
@@ -56,7 +57,7 @@ public class PieceHandler {
 			}
 		}
 	}
-	
+
 	public void moveNeutralPawn(int nbMove) {
 		if (nbMove < 0) {
 			throw new IllegalArgumentException("The neutral pawn must only move forward");
@@ -72,19 +73,13 @@ public class PieceHandler {
 		index = getRealIndex(index + _posNeutralPawn);
 		return _pieces.get(index);
 	}
-	
-	
+
 	public void display(boolean captions) {
 		var boardBuilder = new AsciiPieceDisplayer();
 		boardBuilder.display(captions);
 	}
 
-	
-	
-	
 	private class AsciiPieceDisplayer {
-		
-
 		private String Caption() {
 			var builder = new StringBuilder();
 			builder.append("Caption :\n");
@@ -93,22 +88,22 @@ public class PieceHandler {
 			builder.append("  b : number of buttons on the piece\n");
 			return builder.toString();
 		}
-		
+
 		private String displaySelectablePiecesNumber() {
 			var builder = new StringBuilder();
 
 			for (int i = 0; i < selectableNumber && i < _pieces.size(); i++) {
-				builder.append("(").append(i + 1).append(")");
+				builder.append("(").append(i + 1).append(")   ");
 				builder.append(_pieces.get(i).spacesCaption());
 			}
 			builder.append("\n");
 			return builder.toString();
 		}
-		
+
 		private String bodyString() {
 			var builder = new StringBuilder();
 			int index;
-			
+
 			for (int line = 0; line < getBiggestPiece(); line++) {
 				for (int j = 0; j < _piecesDisplayed; j++) {
 					index = getRealIndex(j + _posNeutralPawn);
@@ -118,10 +113,9 @@ public class PieceHandler {
 			}
 			return builder.toString();
 		}
-		
+
 		/**
-		 * Returns the biggest height of the pieces in the _piecesDisplayed first
-		 * pieces
+		 * Returns the biggest height of the pieces in the _piecesDisplayed first pieces
 		 */
 		private int getBiggestPiece() {
 			int pieceHeight;
@@ -136,15 +130,15 @@ public class PieceHandler {
 		}
 
 		private String costString(int index) {
-			return "c : " + _pieces.get(index).getCost() + _pieces.get(index).spacesCaption();
+			return "c : " + _pieces.get(index).getCost() + _pieces.get(index).spacesCaption() + "  ";
 		}
 
 		private String movesString(int index) {
-			return "m : " + _pieces.get(index).getMoves() + _pieces.get(index).spacesCaption();
+			return "m : " + _pieces.get(index).getMoves() + _pieces.get(index).spacesCaption() + "  ";
 		}
 
 		private String buttonString(int index) {
-			return "b : " + _pieces.get(index).getButtons() + _pieces.get(index).spacesCaption();
+			return "b : " + _pieces.get(index).getButtons() + _pieces.get(index).spacesCaption() + "  ";
 		}
 
 		private void displayPieces() {
@@ -153,16 +147,16 @@ public class PieceHandler {
 			var button = new StringBuilder();
 			int index;
 
-			for (int i = _posNeutralPawn; i < _posNeutralPawn + _piecesDisplayed && i < _pieces.size(); i++) {
+			for (int i = _posNeutralPawn; i < _posNeutralPawn + _piecesDisplayed; i++) {
 				index = getRealIndex(i);
 				cost.append(costString(index));
 				moves.append(movesString(index));
 				button.append(buttonString(index));
 			}
 			System.out.println(bodyString());
-			System.out.println(cost.toString());
-			System.out.println(moves.toString());
-			System.out.println(button.toString());
+			System.out.println(cost);
+			System.out.println(moves);
+			System.out.println(button);
 		}
 
 		public void display(boolean captions) {
@@ -171,7 +165,6 @@ public class PieceHandler {
 			}
 			System.out.println(displaySelectablePiecesNumber());
 			displayPieces();
-
 		}
 	}
 }

@@ -14,12 +14,12 @@ public class QuiltBoard {
 		return _buttons;
 	}
 
-	public int getEmpty() {
-		var score = 0;
+	public int getScore() {
+		var score = GRID_SIZE * GRID_SIZE * 2;
 		for (int i = 0; i < GRID_SIZE; i++) {
 			for (int j = 0; j < GRID_SIZE; j++) {
 				if (!_grid[i][j]) {
-					score++;
+					score -= 2;
 				}
 			}
 		}
@@ -31,6 +31,34 @@ public class QuiltBoard {
 			throw new IllegalArgumentException("The number of buttons must be positive or equal to zero");
 		}
 		_buttons += nbButtons;
+	}
+	
+	private boolean checkSpace(int lig, int col) {
+		for (int i = 1; i < 7; i++) {
+			for (int j = 0; j < 7; j++) {
+				if (!_grid[i + col][j + lig]) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+	public boolean checkSpecialTile() {
+		var lenLig = 0;
+		for (int col = 0; col < 3; col++) {
+			for (int lig = 0; lig < 9; lig++) {
+				if (_grid[col][lig]) {
+					lenLig++;
+				} else {
+					lenLig = 0;
+				}
+				if (lenLig == 7 && checkSpace(lig - 6, col)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	private boolean isPlacebale(Piece piece, int x, int y) {

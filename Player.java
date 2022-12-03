@@ -5,7 +5,6 @@ public class Player {
 	private QuiltBoard _quiltBoard;
 	private int _buttonsNumber;
 	private final String _name;
-	private int _wage;
 	private Pawn _pawn;
 	private int _position;
 	private boolean _specialTile;
@@ -14,7 +13,6 @@ public class Player {
 		Objects.requireNonNull(name);
 		Objects.requireNonNull(color);
 		_name = name;
-		_wage = 0;
 		_buttonsNumber = 5;
 		_pawn = new Pawn(color);
 		_position = 0;
@@ -38,10 +36,6 @@ public class Player {
 	public QuiltBoard getQuiltboard() {
 		return _quiltBoard;
 	}
-
-	public int getScoreDemo() {
-		return _buttonsNumber + _quiltBoard.getScore(); 
-	}
 	
 	public int getScore() {
 		var partialScore = _buttonsNumber + _quiltBoard.getScore();
@@ -50,10 +44,6 @@ public class Player {
 
 	public boolean canBuyPiece(Piece piece) {
 		return _buttonsNumber >= piece.getCost();
-	}
-
-	public void earnWage() {
-		_buttonsNumber += _wage;
 	}
 
 	public void earnButtons(int nbButtons) {
@@ -67,39 +57,47 @@ public class Player {
 		return _quiltBoard.addPiece(p, x, y);
 	}
 
-	public void skipTurn(int nbMoves, TimeBoard timeBoard) {
+	public void skipTurn(int nbMoves, TimeBoard timeBoard, Scanner scanner) {
 		Objects.requireNonNull(timeBoard);
 
 		if (nbMoves < 0) {
 			throw new IllegalArgumentException("the player can't move back");
 		}
 		earnButtons(nbMoves);
-		move(nbMoves, timeBoard);
+		move(nbMoves, timeBoard, scanner);
 	}
 
 	public void payEvent() {
-		System.out.println();
 		earnButtons(_quiltBoard.getButtons());
 	}
 
-	public void buyPiece(Piece p, Scanner scan, TimeBoard timeBoard) {
+	public void buyPieceDemo(Piece p, Scanner scan, TimeBoard timeBoard) {
 		Objects.requireNonNull(p);
 		Objects.requireNonNull(scan);
 		Objects.requireNonNull(timeBoard);
 
 		placingPhaseDemo(p, scan);
 		_buttonsNumber -= p.getCost();
-		_wage += p.getButtons();
-		move(p.getMoves(), timeBoard);
+		move(p.getMoves(), timeBoard, scan);
+	}
+	
+	public void buyPieceComplete(Piece p, Scanner scan, TimeBoard timeBoard) {
+		Objects.requireNonNull(p);
+		Objects.requireNonNull(scan);
+		Objects.requireNonNull(timeBoard);
+
+		placingPhaseComplete(p, scan);
+		_buttonsNumber -= p.getCost();
+		move(p.getMoves(), timeBoard, scan);
 	}
 
-	private void move(int nbMoves, TimeBoard timeBoard) {
+	private void move(int nbMoves, TimeBoard timeBoard, Scanner scanner) {
 		Box currentBox;
 		timeBoard.getBoard().get(_position).remove(this);
 		for (int i = 0; i < nbMoves && _position < timeBoard.getBoard().size() - 1; i++) {
-			currentBox = timeBoard.getBoard().get(_position);
 			_position++;
-			currentBox.boxEvent(this);
+			currentBox = timeBoard.getBoard().get(_position);
+			currentBox.boxEvent(this, scanner);
 		}
 		timeBoard.getBoard().get(_position).add(this);
 	}
@@ -141,8 +139,9 @@ public class Player {
 	private Piece flipPiece(Scanner scan, Piece p) {
 		String res;
 		do {
-			System.out.println("Do you want to flip the piece");
-			System.out.println("Enter f if you want to flip it or r if you want to rotate it clockwise and s if you want to stop");
+			_quiltBoard.display();
+			System.out.println("\nDo you want to flip the piece");
+			System.out.println("Enter f if you want  to rotate it counter clockwise, r if you want to reverse it and s if you want to stop");
 			res = scan.next();
 			switch (res) {
 			case "f" -> p = p.flip();
@@ -172,7 +171,7 @@ public class Player {
 		_quiltBoard.display();
 	}
 	
-	public void placingPhaseCompleteAscii(Piece piece, Scanner scanner) {
+	public void placingPhaseComplete(Piece piece, Scanner scanner) {
 		piece = flipPiece(scanner, piece);
 		placingPhase(piece, scanner);
 	}

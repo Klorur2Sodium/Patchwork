@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Box {
-	private final char _status;
+	private char _status;
 	private ArrayList<Player> _players = new ArrayList<>();
 
 	public Box(char status) {
@@ -20,6 +20,10 @@ public class Box {
 	
 	public List<Player> getPlayers() {
 		return _players;
+	}
+	
+	public char getStatus() {
+		return _status;	
 	}
 
 	public void add(Player player) {
@@ -41,7 +45,7 @@ public class Box {
 		return null;
 	}
 
-	public void boxEvent(Player player) {
+	public void boxEvent(Player player, Scanner scanner) {
 		Objects.requireNonNull(player);
 
 		switch (_status) {
@@ -51,8 +55,8 @@ public class Box {
 		case 'x':
 			var patch = new Piece();
 			patch.parseLine("1:0:0:0");
-			System.out.println(patch);
-			player.placingPhase(patch, new Scanner(System.in));
+			player.placingPhase(patch, scanner);
+			_status = '|';
 			break;
 		case '|':
 			return;

@@ -2,11 +2,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+
 public class PlayerHandler {
 	private final ArrayList<Player> players = new ArrayList<Player>();
 	private Player currentPlayer;
 	private int specialTilesRemaining;
 	
+
 	public PlayerHandler() {
 		specialTilesRemaining = 1;
 	}
@@ -21,6 +23,14 @@ public class PlayerHandler {
 	
 	public boolean specialTileAvailable() {
 		return (specialTilesRemaining > 0) ? true : false;
+	}
+	
+	public void updateSpecialTile() {
+		if (specialTileAvailable()) {
+			if (currentPlayer.getQuiltboard().checkSpecialTile()) {
+				specialTilesRemaining--;
+			}
+		}
 	}
 	
 	public void initPlayersAscii(Scanner scanner) {
@@ -54,7 +64,6 @@ public class PlayerHandler {
 		
 		for (var player : players) {
 			if (player.getPosition() > currentPlayer.getPosition()) {
-				System.out.println("oskur");
 				distance = player.getPosition() - currentPlayer.getPosition();
 			}
 		}

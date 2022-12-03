@@ -4,74 +4,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 public class Main {
-	private static void demoVersion(Scanner scanner) {
-		var timeBoard = new TimeBoard();
-		var pieceHandler = PieceHandler.Handler();
-		var playerHandler = new PlayerHandler();
-		int playerChoice;
-		Player currentPlayer;
-
-		initTimeBoard("load_time_board_demo", timeBoard, scanner);
-		initPieceHandler("load_phase1", pieceHandler, scanner);
-		playerHandler.initPlayersAscii(scanner);
-		timeBoard.initPlayerPawns(playerHandler, 2);
-
-		displayGame(timeBoard, pieceHandler); // prints the captions
-
-		while (!timeBoard.checkEndOfGame(playerHandler.getPlayers().size())) {
-			playerHandler.updateCurrentPlayer();
-			currentPlayer = playerHandler.getCurrentPlayer();
-			
-			playerChoice = currentPlayer.buyingPhase(scanner, pieceHandler);
-
-			if (playerChoice == 0) {
-				currentPlayer.skipTurn(playerHandler.distanceBetweenPlayers() + 1, timeBoard);
-			} else {
-				currentPlayer.buyPiece(pieceHandler.getPiece(playerChoice - 1), scanner, timeBoard);
-				pieceHandler.remove(pieceHandler.getPiece(playerChoice - 1));
-				pieceHandler.moveNeutralPawn(playerChoice - 1);
-			}
-			
-			timeBoard.demarcateTurns();
-			timeBoard.displayTimeBoard(false);
-			pieceHandler.display(false);
-		}
-		playerHandler.displayWinner();
-	}
-	
-	private static void completeVersion(Scanner scanner) {
-		var timeBoard = new TimeBoard();
-		var pieceHandler = PieceHandler.Handler();
-		var playerHandler = new PlayerHandler();
-		int playerChoice;
-		Player currentPlayer;
-
-		initTimeBoard("load_time_board", timeBoard, scanner);
-		initPieceHandler("load_Normal", pieceHandler, scanner);
-		playerHandler.initPlayersAscii(scanner);
-		timeBoard.initPlayerPawns(playerHandler, 2);
-
-		displayGame(timeBoard, pieceHandler); // prints the captions
-
-		while (!timeBoard.checkEndOfGame(playerHandler.getPlayers().size())) {
-			playerHandler.updateCurrentPlayer();
-			currentPlayer = playerHandler.getCurrentPlayer();
-			
-			playerChoice = currentPlayer.buyingPhase(scanner, pieceHandler);
-
-			if (playerChoice == 0) {
-				currentPlayer.skipTurn(playerHandler.distanceBetweenPlayers() + 1, timeBoard);
-			} else {
-				currentPlayer.buyPiece(pieceHandler.getPiece(playerChoice - 1), scanner, timeBoard);
-				pieceHandler.remove(pieceHandler.getPiece(playerChoice - 1));
-			}
-			
-			timeBoard.demarcateTurns();
-			timeBoard.displayTimeBoard(false);
-			pieceHandler.display(false);
-		}
-		playerHandler.displayWinner();
-	}
 	
 	public static void main(String[] args) {
 		var scanner = new Scanner(System.in);
@@ -84,13 +16,56 @@ public class Main {
 		
 		switch(chosenVersion) {
 		case "d": 
-			demoVersion(scanner);
+			playingPhase(scanner, "time_board", "load_phase1"); // a changer 
 			break;
 		case "a":
-			completeVersion(scanner); // pas finis
+			playingPhase(scanner, "time_board", "load_Normal"); // a changer mauvais plateau
 			break;
 		}
 	}
+	
+	private static void init(String boardFile, String pieceFile, TimeBoard timeBoard, Scanner scanner, PieceHandler pieceHandler, PlayerHandler players) {
+		initTimeBoard(boardFile, timeBoard, scanner);
+		initPieceHandler(pieceFile, pieceHandler, scanner);
+		players.recoverNames(scanner);
+		timeBoard.initPlayerPawns(players, 2);
+
+		displayGame(timeBoard, pieceHandler); // prints the captions
+	}
+	
+	
+	private static void playingPhase(Scanner scanner, String boardFile, String pieceFile) {
+		var timeBoard = new TimeBoard();
+		var pieces = PieceHandler.Handler();
+		var players = new PlayerHandler();
+		int playerChoice;
+		Player currentPlayer;
+		
+		init(boardFile, pieceFile, timeBoard, scanner, pieces, players);
+		
+		while (!timeBoard.checkEndOfGame(players.getPlayers().size())) {
+			players.updateCurrentPlayer();
+			currentPlayer = players.getCurrentPlayer();
+			
+			playerChoice = currentPlayer.buyingPhase(scanner, pieces);
+
+			if (playerChoice == 0) {
+				currentPlayer.skipTurn(players.distanceBetweenPlayers() + 1, timeBoard);
+			} else {
+				currentPlayer.buyPiece(pieces.getPiece(playerChoice - 1), scanner, timeBoard);
+				pieces.remove(pieces.getPiece(playerChoice - 1));
+				pieces.moveNeutralPawn(playerChoice - 1);
+			}
+			
+			timeBoard.demarcateTurns();
+			timeBoard.displayTimeBoard(false);
+			pieces.display(false);
+		}
+		
+		players.displayWinner();
+	}
+	
+	
 
 	private static void displayGame(TimeBoard t, PieceHandler p) {
 		t.displayTimeBoard(true);

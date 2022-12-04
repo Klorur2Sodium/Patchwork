@@ -17,6 +17,11 @@ public class Box {
 	private char _status;
 	private ArrayList<Player> _players = new ArrayList<>();
 
+	/**
+	* The method is the constructor it takes a char status and put it on the _status
+	*
+	* @param status 
+	*/
 	public Box(char status) {
 		Objects.requireNonNull(status);
 

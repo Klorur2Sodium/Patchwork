@@ -133,7 +133,7 @@ public class Player {
 		String res;
 		do {
 			System.out.println("Do you want to flip the piece");
-			System.out.println("Enter f if you want to flip it or r if you want to rotate it and s if you want to stop");
+			System.out.println("Enter f if you want  to rotate it counter clockwise, r if you want to reverse it and s if you want to stop");
 			res = scan.next();
 			switch (res) {
 			case "f" -> p = p.flip();

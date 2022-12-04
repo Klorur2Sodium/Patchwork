@@ -20,10 +20,22 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 	private String _chosenVersion;
 	private final Scanner _scanner;
 	
+	/**
+	* The method creates a new GameBuilder
+	* It allows to create a gameBuilder (only one can be created).
+	*
+	* @param scann
+	* @return IGameVersionSelector
+	*/
 	public static IGameVersionSelector getVersionSelector(Scanner scan) {
 		return new GameBuilder(scan);
 	}
 	
+	/**
+	* The method is the constructor of the class it takes a scanner and puts it on _scanner
+	*
+	* @param scan
+	*/
 	private GameBuilder(Scanner scan) {
 		_scanner = scan;
 	}

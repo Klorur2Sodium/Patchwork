@@ -3,6 +3,17 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Scanner;
 
+/**
+ * The class stores an array of players the version chosen by the players and a scanner
+ * This class allows the construction of the the class Game.
+ * It implements IGameVersionSelector, IGamePlayerSelector, IGameBuilder to force the user to 
+ * initialize the game in the right order.
+ * 
+ * @author FRAIZE Victor
+ * @author COUSSON Sophie
+ *
+ */
+
 public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, IGameBuilder {
 	
 	private Player[] _players;
@@ -17,12 +28,22 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 		_scanner = scan;
 	}
 	
+	/**
+	 * The method returns the version chosen by the players
+	 * 
+	 * @return String 
+	 */
 	public String getVersion() {
 		return _chosenVersion;
 	}
 	
+	/**
+	 * The method asks the player to choose a version of the game and allows to go to the next
+	 * step (choosing the players)
+	 * 
+	 * @return IGamePlayerSelector
+	 */
 	public IGamePlayerSelector chooseVersion() {
-		
 		do {
 			System.out.println("Enter 'd' to play to the demo ascii version and 'a' for the complete ascii version");
 			_chosenVersion = _scanner.next();
@@ -31,6 +52,13 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 		return this;
 	}
 	
+	
+	/**
+	 * The method adds player to the players' array and allows to go to the next
+	 * step (building the game)
+	 * 
+	 * @return IGameBuilder
+	 */
 	public IGameBuilder addPlayers() {
 		
 		_players = new Player[2];
@@ -52,6 +80,11 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 		return this;
 	}
 	
+	/**
+	 * The method builds a new game
+	 * 
+	 * @return Game
+	 */
 	public Game build() {
 		var timeBoard = new TimeBoard();
 		var pieces = PieceHandler.Handler();
@@ -65,15 +98,30 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 		return new Game(timeBoard, players, pieces, _chosenVersion); 
 	}
 	
+	/**
+	 * The method uses two files to initializes the timeBoard and the pieceHandler 
+	 * 
+	 * @param boardFile
+	 * @param pieceFile
+	 * @param timeBoard
+	 * @param pieceHandler
+	 * @param players
+	 */
 	private void init(String boardFile, String pieceFile, TimeBoard timeBoard, PieceHandler pieceHandler, PlayerHandler players) {
 		initTimeBoard(boardFile, timeBoard);
 		initPieceHandler(pieceFile, pieceHandler);
 		timeBoard.initPlayerPawns(players, 2);
 	}
 	
-	private void initTimeBoard(String file, TimeBoard t) {
+	/**
+	 * The method initializes the timeBoard by reading each line of the file given 
+	 * 
+	 * @param file
+	 * @param timeBoard
+	 */
+	private void initTimeBoard(String file, TimeBoard timeBoard) {
 		try {
-			t.loadTimeBoard(Path.of(file));
+			timeBoard.loadTimeBoard(Path.of(file));
 		} catch (IOException e) {
 			System.err.println(e.getMessage());
 			System.exit(1);
@@ -82,10 +130,16 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 		}
 	}
 
-	private void initPieceHandler(String file, PieceHandler p) {
+	/**
+	 * The method initializes the pieceHandler by reading each line of the file given
+	 * 
+	 * @param file
+	 * @param pieceHandler
+	 */
+	private void initPieceHandler(String file, PieceHandler pieceHandler) {
 		try {
-			p.loadPieces(Path.of(file));
-			Collections.shuffle(p.getPieces());
+			pieceHandler.loadPieces(Path.of(file));
+			Collections.shuffle(pieceHandler.getPieces());
 		} catch (IOException e) {
 			System.err.println(e.getMessage());
 			System.exit(1);

@@ -3,8 +3,9 @@ import java.util.Scanner;
 
 public class Player {
 	private QuiltBoard _quiltBoard;
-	private int _buttonsNumber;
+	private int _buttonsCount;
 	private final String _name;
+	private int _wage;
 	private Pawn _pawn;
 	private int _position;
 	private boolean _specialTile;
@@ -13,7 +14,8 @@ public class Player {
 		Objects.requireNonNull(name);
 		Objects.requireNonNull(color);
 		_name = name;
-		_buttonsNumber = 5;
+		_wage = 0;
+		_buttonsCount = 5;
 		_pawn = new Pawn(color);
 		_position = 0;
 		_specialTile = false;
@@ -38,66 +40,72 @@ public class Player {
 	}
 	
 	public int getScore() {
-		var partialScore = _buttonsNumber + _quiltBoard.getScore();
+		var partialScore = _buttonsCount - _quiltBoard.getEmpty() * 2;
 		return (_specialTile) ? partialScore : partialScore + 7;
 	}
 
 	public boolean canBuyPiece(Piece piece) {
-		return _buttonsNumber >= piece.getCost();
+		return _buttonsCount >= piece.getCost();
+	}
+
+	public void earnWage() {
+		_buttonsCount += _wage;
 	}
 
 	public void earnButtons(int nbButtons) {
 		if (nbButtons < 0) {
 			throw new IllegalArgumentException("The player must gain a positive amount of buttons");
 		}
-		_buttonsNumber += nbButtons;
+		_buttonsCount += nbButtons;
+	}
+	
+	public void addSpecialTile() {
+		_specialTile = true;
 	}
 
 	public boolean addPieceToGrid(Piece p, int x, int y) {
 		return _quiltBoard.addPiece(p, x, y);
 	}
 
-	public void skipTurn(int nbMoves, TimeBoard timeBoard, Scanner scanner) {
+	public void skipTurn(Scanner scanner, int nbMoves, TimeBoard timeBoard, String version) {
 		Objects.requireNonNull(timeBoard);
-
 		if (nbMoves < 0) {
 			throw new IllegalArgumentException("the player can't move back");
 		}
+
 		earnButtons(nbMoves);
-		move(nbMoves, timeBoard, scanner);
+		move(scanner, nbMoves, timeBoard, version);
 	}
 
 	public void payEvent() {
-		earnButtons(_quiltBoard.getButtons());
+		earnButtons(_wage);
 	}
 
-	public void buyPieceDemo(Piece p, Scanner scan, TimeBoard timeBoard) {
-		Objects.requireNonNull(p);
-		Objects.requireNonNull(scan);
+	public void buyPiece(Piece piece, Scanner scanner, TimeBoard timeBoard, String version) {
+		Objects.requireNonNull(piece);
+		Objects.requireNonNull(scanner);
 		Objects.requireNonNull(timeBoard);
-
-		placingPhaseDemo(p, scan);
-		_buttonsNumber -= p.getCost();
-		move(p.getMoves(), timeBoard, scan);
-	}
-	
-	public void buyPieceComplete(Piece p, Scanner scan, TimeBoard timeBoard) {
-		Objects.requireNonNull(p);
-		Objects.requireNonNull(scan);
-		Objects.requireNonNull(timeBoard);
-
-		placingPhaseComplete(p, scan);
-		_buttonsNumber -= p.getCost();
-		move(p.getMoves(), timeBoard, scan);
+		if (!canBuyPiece(piece)) {
+			return;
+		}
+		
+		if (version.equals("d")) {
+			automaticPlacing(piece, scanner, version);
+		} else {
+			placingPhase(piece, scanner, version);
+		}
+		_buttonsCount -= piece.getCost();
+		_wage += piece.getButtons();
+		move(scanner, piece.getMoves(), timeBoard, version);
 	}
 
-	private void move(int nbMoves, TimeBoard timeBoard, Scanner scanner) {
+	private void move(Scanner scanner, int nbMoves, TimeBoard timeBoard, String version) {
 		Box currentBox;
 		timeBoard.getBoard().get(_position).remove(this);
 		for (int i = 0; i < nbMoves && _position < timeBoard.getBoard().size() - 1; i++) {
 			_position++;
 			currentBox = timeBoard.getBoard().get(_position);
-			currentBox.boxEvent(this, scanner);
+			currentBox.boxEvent(this, scanner, version);
 		}
 		timeBoard.getBoard().get(_position).add(this);
 	}
@@ -107,7 +115,7 @@ public class Player {
 		int playerChoice;
 		do {
 			try {
-				System.out.println(_name + "'s turn :\n" + "You currently have " + _buttonsNumber + " buttons \n"
+				System.out.println(_name + "'s turn :\n" + "You currently have " + _buttonsCount + " buttons \n"
 						+ "Enter 1, 2 or 3 to select the according piece or enter 0 if you don't want to buy any pieces");
 				playerChoice = Integer.parseInt(scanner.next());
 			} catch (NumberFormatException e) {
@@ -121,27 +129,11 @@ public class Player {
 		return playerChoice;
 	}
 
-	public void placingPhaseDemo(Piece piece, Scanner scanner) {
-		String userInput;
-
-		do {
-			System.out.println("Do you want to place your piece automaticly y/n");
-			userInput = scanner.next();
-		} while (userInput.equals("y") && userInput.equals("n"));
-		if (userInput.equals("y")) {
-			_quiltBoard.addPieceAutomatically(piece);
-			_quiltBoard.display();
-		} else {
-			placingPhase(piece, scanner);
-		}
-	}
-
 	private Piece flipPiece(Scanner scan, Piece p) {
 		String res;
 		do {
-			_quiltBoard.display();
-			System.out.println("\nDo you want to flip the piece");
-			System.out.println("Enter f if you want  to rotate it counter clockwise, r if you want to reverse it and s if you want to stop");
+			System.out.println("Do you want to flip the piece");
+			System.out.println("Enter f if you want to flip it or r if you want to rotate it and s if you want to stop");
 			res = scan.next();
 			switch (res) {
 			case "f" -> p = p.flip();
@@ -151,12 +143,31 @@ public class Player {
 		} while (!res.equals("s"));
 		return p;
 	}
+	
+	public void automaticPlacing(Piece piece, Scanner scanner, String version) {
+		String userInput;
+		
+		do {
+			System.out.println("Do you want to place your piece automaticly y/n");
+			userInput = scanner.next();
+		} while(userInput.equals("y") && userInput.equals("n"));
+		if (userInput.equals("y")) {
+			_quiltBoard.addPieceAutomatically(piece);
+			_quiltBoard.display();
+		} else {
+			placingPhase(piece, scanner, version);
+		}
+	}
 
-	public void placingPhase(Piece piece, Scanner scanner) {
+	public void placingPhase(Piece piece, Scanner scanner, String version) {
 		int x, y;
 
 		_quiltBoard.display();
 		System.out.println(piece.bodyString());
+		if (version.equals("a")) {
+			piece = flipPiece(scanner, piece);
+		}
+		
 		do {
 			try {
 				System.out.println("Enter the x coordinate of the top right corner of your piece in the quiltboard");
@@ -170,10 +181,13 @@ public class Player {
 		} while (!_quiltBoard.addPiece(piece, x - 1, y - 1));
 		_quiltBoard.display();
 	}
-	
-	public void placingPhaseComplete(Piece piece, Scanner scanner) {
-		piece = flipPiece(scanner, piece);
-		placingPhase(piece, scanner);
-	}
 
+	@Override
+	public String toString() {
+		var builder= new StringBuilder();
+		builder.append(_name);
+		builder.append("buttons").append(_buttonsCount).append("\n");
+		builder.append("Wage").append(_wage).append("\n");
+		return builder.toString();
+	}
 }

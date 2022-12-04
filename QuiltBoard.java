@@ -14,34 +14,56 @@ public class QuiltBoard {
 		return _buttons;
 	}
 
-	public int getScore() {
-		var score = GRID_SIZE * GRID_SIZE * 2;
+	public int getEmpty() {
+		var score = 0;
 		for (int i = 0; i < GRID_SIZE; i++) {
 			for (int j = 0; j < GRID_SIZE; j++) {
 				if (!_grid[i][j]) {
-					score -= 2;
+					score++;
 				}
 			}
 		}
 		return score;
 	}
-
-	private void addButtons(int nbButtons) {
-		if (nbButtons < 0) {
-			throw new IllegalArgumentException("The number of buttons must be positive or equal to zero");
-		}
-		_buttons += nbButtons;
-	}
 	
-	private boolean checkSpace(int lig, int col) {
-		for (int i = 1; i < 7; i++) {
-			for (int j = 0; j < 7; j++) {
-				if (!_grid[i + col][j + lig]) {
-					return false;
+	public boolean addPiece(Piece piece, int x, int y) {
+		if (x < 0 || y < 0 || !isPlacebale(piece, x, y)) {
+			return false;
+		}
+		addButtons(piece.getButtons());
+		for (int i = 0; i < piece.getYSize(); i++) {
+			for (int j = 0; j < piece.getXSize(); j++) {
+				if (piece.getBodyValue(i, j)) {
+					_grid[i + y][j + x] = true;
 				}
 			}
 		}
 		return true;
+	}
+	
+	public void addPieceAutomatically(Piece piece) {
+		for (int i = 0; i < GRID_SIZE; i++) {
+			for (int j = 0; j < GRID_SIZE; j++) {
+				if (addPiece(piece, j, i)) {
+					return;
+				}
+			}
+		}
+	}
+	
+	public void display() {
+		var builder = new StringBuilder();
+		builder.append("    1 2 3 4 5 6 7 8 9\n").append("  +------------------+\n");
+		for (int i = 0; i < GRID_SIZE; i++) {
+			builder.append(i + 1).append(" |");
+
+			for (int j = 0; j < GRID_SIZE; j++) {
+				builder.append(_grid[i][j] ? " x" : " .");
+			}
+			builder.append("|\n");
+		}
+		builder.append("  +------------------+\n");
+		System.out.println(builder.toString());
 	}
 	
 	public boolean checkSpecialTile() {
@@ -60,6 +82,24 @@ public class QuiltBoard {
 		}
 		return false;
 	}
+	
+	private boolean checkSpace(int lig, int col) {
+		for (int i = 1; i < 7; i++) {
+			for (int j = 0; j < 7; j++) {
+				if (!_grid[i + col][j + lig]) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	private void addButtons(int nbButtons) {
+		if (nbButtons < 0) {
+			throw new IllegalArgumentException("The number of buttons must be positive or equal to zero");
+		}
+		_buttons += nbButtons;
+	}
 
 	private boolean isPlacebale(Piece piece, int x, int y) {
 		if (!piece.fitArea(x, y, GRID_SIZE)) {
@@ -74,46 +114,6 @@ public class QuiltBoard {
 			}
 		}
 		return true;
-	}
-
-	public boolean addPiece(Piece piece, int x, int y) {
-		if (x < 0 || y < 0 || !isPlacebale(piece, x, y)) {
-			return false;
-		}
-		addButtons(piece.getButtons());
-		for (int i = 0; i < piece.getYSize(); i++) {
-			for (int j = 0; j < piece.getXSize(); j++) {
-				if (piece.getBodyValue(i, j)) {
-					_grid[i + y][j + x] = true;
-				}
-			}
-		}
-		return true;
-	}
-
-	public void addPieceAutomatically(Piece piece) {
-		for (int i = 0; i < GRID_SIZE; i++) {
-			for (int j = 0; j < GRID_SIZE; j++) {
-				if (addPiece(piece, j, i)) {
-					return;
-				}
-			}
-		}
-	}
-
-	public void display() {
-		var builder = new StringBuilder();
-		builder.append("    1 2 3 4 5 6 7 8 9\n").append("  +------------------+\n");
-		for (int i = 0; i < GRID_SIZE; i++) {
-			builder.append(i + 1).append(" |");
-
-			for (int j = 0; j < GRID_SIZE; j++) {
-				builder.append(_grid[i][j] ? " x" : " .");
-			}
-			builder.append("|\n");
-		}
-		builder.append("  +------------------+\n");
-		System.out.println(builder.toString());
 	}
 
 }

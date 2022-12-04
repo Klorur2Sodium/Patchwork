@@ -45,7 +45,7 @@ public class Box {
 		return null;
 	}
 
-	public void boxEvent(Player player, Scanner scanner) {
+	public void boxEvent(Player player, Scanner scanner, String version) {
 		Objects.requireNonNull(player);
 
 		switch (_status) {
@@ -55,7 +55,7 @@ public class Box {
 		case 'x':
 			var patch = new Piece();
 			patch.parseLine("1:0:0:0");
-			player.placingPhase(patch, scanner);
+			player.placingPhase(patch, scanner, version);
 			_status = '|';
 			break;
 		case '|':

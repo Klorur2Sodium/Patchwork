@@ -1,85 +1,64 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-
+import java.util.Objects;
 
 public class PlayerHandler {
-	private final ArrayList<Player> players = new ArrayList<Player>();
-	private Player currentPlayer;
-	private int specialTilesRemaining;
+	private final Player[] _players;
+	private int _current;
+	private boolean _specialTilesRemaining;
 	
-
-	public PlayerHandler() {
-		specialTilesRemaining = 1;
+	public PlayerHandler(Player[] players, boolean special) {
+		Objects.requireNonNull(players);
+		_players = players;
+		_specialTilesRemaining = special;
+		_current = 0;
 	}
 	
-	public List<Player> getPlayers() {
-		return players;
+	public Player getPlayerIndex(int i) {
+		if (i < 0 || i > 1) {
+			throw new IllegalArgumentException("there is only two players");
+		}
+		return _players[i];
 	}
 	
-	public Player getCurrentPlayer() {
-		return currentPlayer;
+	public Player getCurrent() {
+		return _players[_current];
 	}
 	
-	public boolean specialTileAvailable() {
-		return (specialTilesRemaining > 0) ? true : false;
+	public boolean specialTileRemaining() {
+		return _specialTilesRemaining;
 	}
 	
 	public void updateSpecialTile() {
-		if (specialTileAvailable()) {
-			if (currentPlayer.getQuiltboard().checkSpecialTile()) {
-				specialTilesRemaining--;
+		if (specialTileRemaining()) {
+			if (_players[_current].getQuiltboard().checkSpecialTile()) {
+				_players[_current].addSpecialTile();
+				_specialTilesRemaining = false;
 			}
 		}
-	}
-	
-	public void initPlayersAscii(Scanner scanner) {
-		String[] colors = {"Blue", "Red"};
-		var nbPlayers = 2;
-		String name;
-		
-		for (int i = 0; i < nbPlayers; i++) {
-			System.out.println("Player " + (i + 1) + " (" + colors[i] + ") please enter your name :");
-			name = scanner.next();
-			if (name.length() > 30) {
-				System.out.println("The name is too long");
-				i--;
-			} else {
-				players.add(new Player(name, colors[i]));
-			}
-		}
-		currentPlayer = players.get(0);
 	}
 	
 	public void updateCurrentPlayer() {
-		for (var player : players) {
-			if (player.getPosition() < currentPlayer.getPosition()) {
-				currentPlayer = player;
-			}
-		}
-	}
+        if (_players[0].getPosition() > _players[1].getPosition()) {
+            _current =  1;
+        } else if (_players[0].getPosition() < _players[1].getPosition()) {
+            _current =  0;
+        }
+    }
 	
 	public int distanceBetweenPlayers() {
-		int distance = 0;
-		
-		for (var player : players) {
-			if (player.getPosition() > currentPlayer.getPosition()) {
-				distance = player.getPosition() - currentPlayer.getPosition();
-			}
-		}
-		return distance;
+		return Math.abs(_players[0].getPosition() - _players[1].getPosition());
+	}
+	
+	public boolean checkEndOfGame(int boardSize) {
+		return _players[0].getPosition() == _players[1].getPosition() && _players[0].getPosition() == (boardSize - 1);
 	}
 	
 	private Player getVictoriousPlayer() {
-		var scorePlayer1 = players.get(0).getScore();
-		var scorePlayer2 = players.get(1).getScore();
-		return (scorePlayer1 > scorePlayer2) ? players.get(0) : players.get(1);
+		return (_players[0].getScore() > _players[1].getScore()) ? _players[0] : _players[1];
 	}
 	
 	public void displayWinner() {
 		var winner = getVictoriousPlayer();
 		System.out.println(winner.getName() + " won with " + winner.getScore() + " points");
-		
 	}
 	
 }

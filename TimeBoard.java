@@ -7,24 +7,35 @@ import java.nio.file.Path;
 
 public class TimeBoard {
 	private final ArrayList<Box> _board = new ArrayList<Box>();
-//	private final ArrayList<Character> _board = new ArrayList<>();
 	
 	public List<Box> getBoard() {
 		return _board;
 	}
 	
+	public int getSize() {
+		return _board.size();
+	}
+	
+	public void loadTimeBoard(Path path) throws IOException {
+		try (var reader = Files.newBufferedReader(path)) {
+			String line;
+			while ((line = reader.readLine()) != null) {
+				parseLine(line);
+			}
+		}
+	}
+	
+	public void initPlayerPawns(PlayerHandler playerHandler, int size) {
+		Objects.requireNonNull(playerHandler);
+
+		for (int i = size - 1; i >= 0; i--) {
+			_board.get(0).add(playerHandler.getPlayerIndex(i));
+		}
+	}
+	
 	private void add(Box box) {
 		Objects.requireNonNull(box);
 		_board.add(box);
-	}
-
-	public boolean checkEndOfGame(int nbPlayers) {
-		// The left member in the if statement represents the number of
-		// players in the last box
-		if (_board.get(_board.size() - 1).getPlayers().size() == nbPlayers) {
-			return true;
-		}
-		return false;
 	}
 
 	private void parseLine(String line) {
@@ -35,47 +46,19 @@ public class TimeBoard {
 		}
 	}
 
-	public void loadTimeBoard(Path path) throws IOException {
-		try (var reader = Files.newBufferedReader(path)) {
-			String line;
-			while ((line = reader.readLine()) != null) {
-				parseLine(line);
-			}
-		}
-	}
-
-	public void initPlayerPawns(PlayerHandler playerHandler, int size) {
-		Objects.requireNonNull(playerHandler);
-
-		for (int i = size - 1; i >= 0; i--) {
-			_board.get(0).add(playerHandler.getPlayers().get(i));
-		}
-	}
+	
 
 	/* Graphic method - Ascii Version */
-	private void displayCaption() {
-		System.out.println("Caption :\n" + "  0 : button\n" + "  x : patch\n" + "  B, R : pawn of a player\n");
-	}
-
+	
 	public void demarcateTurns() {
 		System.out.println("\n--------------- NEXT TURN ---------------\n");
 	}
-
+	
 	public void displayTimeBoard(boolean captions) {
 		if (captions) {
 			displayCaption();
 		}
 		display();
-	}
-
-	private String printNTimes(String line, int n) {
-		var builder = new StringBuilder();
-		for (int i = 0; i < n; i++) {
-			builder.append(line);
-		}
-		builder.append("\n");
-
-		return builder.toString();
 	}
 
 	public void display() {
@@ -96,5 +79,18 @@ public class TimeBoard {
 
 		System.out.println(builder.toString());
 	}
+	
+	private void displayCaption() {
+		System.out.println("Caption :\n" + "  0 : button\n" + "  x : patch\n" + "  B, R : pawn of a player\n");
+	}
+	
+	private String printNTimes(String line, int n) {
+		var builder = new StringBuilder();
+		for (int i = 0; i < n; i++) {
+			builder.append(line);
+		}
+		builder.append("\n");
 
+		return builder.toString();
+	}
 }

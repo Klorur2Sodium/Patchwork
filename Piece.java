@@ -1,11 +1,11 @@
 
 public class Piece {
 	private boolean[][] _body; // 1bis
-	private int _cost;
-	private int _buttons;
-	private int _moves;
-	private int xSize;
-	private int ySize;
+	private byte _cost; //-128 + 127
+	private byte _buttons;
+	private byte _moves;
+	private byte xSize;
+	private byte ySize;
 
 	public int getCost() {
 		return _cost;
@@ -30,48 +30,14 @@ public class Piece {
 	public boolean getBodyValue(int x, int y) {
 		return _body[y][x];
 	}
-
-	private void initPiece(String line) {
-		char[] decomposition = line.toCharArray();
-		int x, y;
-		x = 0;
-		y = 0;
-		for (var elm : decomposition) {
-			switch (elm) {
-			case '1' -> {
-				_body[x][y] = true;
-				x++;
-			}
-			case '0' -> {
-				_body[x][y] = false;
-				x++;
-			}
-			case ',' -> {
-				if (xSize != x) {
-					throw new IllegalArgumentException("invalid piece");
-				}
-				y++;
-				x = 0;
-			}
-			}
-		}
-	}
-
-	private void parseBody(String line) {
-		var splitLine = line.split(",");
-		ySize = splitLine.length;
-		xSize = splitLine[0].length();
-		_body = new boolean[xSize][ySize];
-		initPiece(line);
-	}
-
+	
 	public void parseLine(String line) {
 		var splitLine = line.split(":");
 
 		parseBody(splitLine[0]);
-		_cost = Integer.parseInt(splitLine[1]);
-		_moves = Integer.parseInt(splitLine[2]);
-		_buttons = Integer.parseInt(splitLine[3]);
+		_cost = (byte) Integer.parseInt(splitLine[1]);
+		_moves = (byte) Integer.parseInt(splitLine[2]);
+		_buttons = (byte) Integer.parseInt(splitLine[3]);
 	}
 
 	public boolean fitArea(int x, int y, int size) {
@@ -82,17 +48,6 @@ public class Piece {
 			return false;
 		}
 		return true;
-	}
-
-	private Piece newPiece(int x, int y) {
-		var temp = new Piece();
-		temp._cost = _cost;
-		temp._moves = _moves;
-		temp._buttons = _buttons;
-		temp.xSize = x;
-		temp.ySize = y;
-		temp._body = new boolean[x][y];
-		return temp;
 	}
 
 	public Piece flip() {
@@ -116,7 +71,7 @@ public class Piece {
 		}
 		return temp;
 	}
-
+	
 	public String bodyString() {
 		var builder = new StringBuilder();
 		for (int i = 0; i < ySize; i++) {
@@ -128,21 +83,67 @@ public class Piece {
 		return builder.toString();
 	}
 
-	public String spacesCaption() {
+	public String spacesCaption(String type) {
 		var builder = new StringBuilder();
-		int lenCaption = (_cost < 10)? 4 : 5;
+		int lenCaption = (_cost < 10)? 5 : 6;
+		if (!type.equals("cost") && lenCaption == 6) {
+			builder.append(" ");
+		}
 		if (xSize > lenCaption) {
-			for (int i = 0; i < xSize - lenCaption; i++) {
+			for (int i = 0; i <= xSize - lenCaption; i++) {
 				builder.append(" ");
 			}
 		}
-		return builder.toString() + " ";
+		return builder.toString() + "  ";
 	}
 	
+	private void parseBody(String line) {
+		var splitLine = line.split(",");
+		ySize = (byte) splitLine.length;
+		xSize = (byte) splitLine[0].length();
+		_body = new boolean[xSize][ySize];
+		initPiece(line);
+	}
+
+	private void initPiece(String line) {
+		char[] decomposition = line.toCharArray();
+		int x = 0, y = 0;
+		for (var elm : decomposition) {
+			switch (elm) {
+				case '1' -> {
+					_body[x][y] = true;
+					x++;
+				}
+				case '0' -> {
+					_body[x][y] = false;
+					x++;
+				}
+				case ',' -> {
+					if (xSize != x) {
+						throw new IllegalArgumentException("invalid piece");
+					}
+					y++;
+					x = 0;
+				}
+			}
+		}
+	}
+
+	private Piece newPiece(int x, int y) {
+		var temp = new Piece();
+		temp._cost = _cost;
+		temp._moves = _moves;
+		temp._buttons = _buttons;
+		temp.xSize = (byte) x;
+		temp.ySize = (byte) y;
+		temp._body = new boolean[x][y];
+		return temp;
+	}
+
 	private String spacesBody() {
 		var space = new StringBuilder();
 		int lenCaption;
-		lenCaption = (_cost < 10)? 4 : 5;
+		lenCaption = (_cost < 10)? 5 : 6;
 		if (xSize < lenCaption) {
 			for (int i = 0; i < lenCaption - xSize; i++) {
 				space.append(" ");

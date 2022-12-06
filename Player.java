@@ -243,19 +243,19 @@ public class Player {
 	 * @param p : the given piece
 	 * @return the rotated, reversed or untouched piece
 	 */
-	private Piece flipPiece(Scanner scan, Piece p) {
+	private Piece flipPiece(Scanner scan, Piece piece) {
 		String res;
 		do {
 			System.out.println("Do you want to flip the piece");
 			System.out.println("Enter f if you want  to rotate it counter clockwise, r if you want to reverse it and s if you want to stop");
 			res = scan.next();
 			switch (res) {
-			case "f" -> p = p.flip();
-			case "r" -> p = p.reverse();
+			case "f" -> piece = piece.flip();
+			case "r" -> piece = piece.reverse();
 			}
-			System.out.println(p.bodyString());
+			System.out.println(piece.bodyString());
 		} while (!res.equals("s"));
-		return p;
+		return piece;
 	}
 	
 	/**

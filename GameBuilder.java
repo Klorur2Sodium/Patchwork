@@ -1,3 +1,5 @@
+package fr.uge.patchwork;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -9,11 +11,9 @@ import java.util.Scanner;
  * It implements IGameVersionSelector, IGamePlayerSelector, IGameBuilder to force the user to 
  * initialize the game in the right order.
  * 
- * @author FRAIZE Victor
  * @author COUSSON Sophie
- *
+ * @author FRAIZE Victor
  */
-
 public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, IGameBuilder {
 	
 	private Player[] _players;
@@ -24,7 +24,7 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 	* The method creates a new GameBuilder
 	* It allows to create a gameBuilder (only one can be created).
 	*
-	* @param scann
+	* @param scan : a scanner
 	* @return IGameVersionSelector
 	*/
 	public static IGameVersionSelector getVersionSelector(Scanner scan) {
@@ -34,7 +34,7 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 	/**
 	* The method is the constructor of the class it takes a scanner and puts it on _scanner
 	*
-	* @param scan
+	* @param scan : a scanner
 	*/
 	private GameBuilder(Scanner scan) {
 		_scanner = scan;
@@ -63,7 +63,6 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 				
 		return this;
 	}
-	
 	
 	/**
 	 * The method adds player to the players' array and allows to go to the next
@@ -113,11 +112,11 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 	/**
 	 * The method uses two files to initializes the timeBoard and the pieceHandler 
 	 * 
-	 * @param boardFile
-	 * @param pieceFile
-	 * @param timeBoard
-	 * @param pieceHandler
-	 * @param players
+	 * @param boardFile : file containing the informations of the TimeBoard
+	 * @param pieceFile : file containing the informations of all the pieces
+	 * @param timeBoard : the time board
+	 * @param pieceHandler : the piece handler
+	 * @param players : the list containing the players
 	 */
 	private void init(String boardFile, String pieceFile, TimeBoard timeBoard, PieceHandler pieceHandler, PlayerHandler players) {
 		initTimeBoard(boardFile, timeBoard);
@@ -128,12 +127,12 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 	/**
 	 * The method initializes the timeBoard by reading each line of the file given 
 	 * 
-	 * @param file
-	 * @param timeBoard
+	 * @param file : the file containing the information
+	 * @param timeBoard : the time board
 	 */
-	private void initTimeBoard(String file, TimeBoard timeBoard) {
+	private void initTimeBoard(String file, TimeBoard t) {
 		try {
-			timeBoard.loadTimeBoard(Path.of(file));
+			t.loadTimeBoard(Path.of(file));
 		} catch (IOException e) {
 			System.err.println(e.getMessage());
 			System.exit(1);
@@ -145,14 +144,15 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 	/**
 	 * The method initializes the pieceHandler by reading each line of the file given
 	 * 
-	 * @param file
-	 * @param pieceHandler
+	 * @param file : the file containing the information
+	 * @param pieceHandler : the piece handler
 	 */
-	private void initPieceHandler(String file, PieceHandler pieceHandler) {
+	private void initPieceHandler(String file, PieceHandler p) {
 		try {
-			pieceHandler.loadPieces(Path.of(file));
-			Collections.shuffle(pieceHandler.getPieces());
+			p.loadPieces(Path.of(file));
+			Collections.shuffle(p.getPieces());
 		} catch (IOException e) {
+			System.out.println("pitié");
 			System.err.println(e.getMessage());
 			System.exit(1);
 			_scanner.close();

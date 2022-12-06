@@ -1,18 +1,17 @@
+package fr.uge.patchwork;
+
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 
  * This class stores the information about a box, it's type (_status) 
  * and the players on it 
  * 
  * @author FRAIZE Victor
  * @author COUSSON Sophie
- *
  */
-
 public class Box {
 	private char _status;
 	private ArrayList<Player> _players = new ArrayList<>();
@@ -20,7 +19,7 @@ public class Box {
 	/**
 	* The method is the constructor it takes a char status and put it on the _status
 	*
-	* @param status 
+	* @param status : status of the box
 	*/
 	public Box(char status) {
 		Objects.requireNonNull(status);
@@ -43,7 +42,6 @@ public class Box {
 	}
 	
 	/**
-	 * 
 	 * The method returns a char that represent the type of the Box
 	 * | or 0 or x (nothing, a button, a patch)
 	 * 
@@ -91,7 +89,7 @@ public class Box {
 	 * The method launch events that match to the _status of the box.
 	 * 
 	 * @param player that plays
-	 * @param scanner
+	 * @param scanner for the x event
 	 * @param version the version of the game
 	 */
 	public void boxEvent(Player player, Scanner scanner, String version) {

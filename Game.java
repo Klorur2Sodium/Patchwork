@@ -13,7 +13,7 @@ public class Game {
 	private final TimeBoard _timeBoard;
 	private final PlayerHandler _playerHandler;
 	private final PieceHandler _pieceHandler;
-	private final String _chosenVersion;
+	private final Constants _chosenVersion;
 
 	/**
 	 * Constructs a new Game object with the given non null TimeBoard,
@@ -24,7 +24,7 @@ public class Game {
 	 * @param pieceHandler : the piece handler
 	 * @param version : the given version of the game
 	 */
-	public Game(TimeBoard timeBoard, PlayerHandler playerHandler, PieceHandler pieceHandler, String version) {
+	public Game(TimeBoard timeBoard, PlayerHandler playerHandler, PieceHandler pieceHandler, Constants version) {
 		Objects.requireNonNull(timeBoard);
 		Objects.requireNonNull(playerHandler);
 		Objects.requireNonNull(pieceHandler);
@@ -45,19 +45,19 @@ public class Game {
 	public void playingPhase(Scanner scanner) {
 		displayGame();
 
-		int playerChoice;
+		Constants playerChoice;
 		while (!_playerHandler.checkEndOfGame(_timeBoard.getSize())) {
 			playerChoice = _playerHandler.getCurrent().buyingPhase(scanner, _pieceHandler);
 
-			if (playerChoice == 0) {
+			if (playerChoice == Constants.SKIP) {
 				_playerHandler.getCurrent().skipTurn(scanner, _playerHandler.distanceBetweenPlayers() + 1, _timeBoard,
 						_chosenVersion);
 			} else {
-				_playerHandler.getCurrent().buyPiece(_pieceHandler.getPiece(playerChoice - 1), scanner, _timeBoard,
+				_playerHandler.getCurrent().buyPiece(_pieceHandler.getPiece(playerChoice.getValue()), scanner, _timeBoard,
 						_chosenVersion);
-				_pieceHandler.remove(_pieceHandler.getPiece(playerChoice - 1));
-				_pieceHandler.moveNeutralPawn(playerChoice - 1);
-				if (_chosenVersion.equals("a")) {
+				_pieceHandler.remove(_pieceHandler.getPiece(playerChoice.getValue()));
+				_pieceHandler.moveNeutralPawn(playerChoice.getValue());
+				if (_chosenVersion == Constants.PHASE2) {
 					_playerHandler.updateSpecialTile();
 				}
 			}

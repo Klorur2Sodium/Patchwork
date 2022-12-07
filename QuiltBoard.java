@@ -10,14 +10,14 @@ package fr.uge.patchwork;
 public class QuiltBoard {
 	private boolean[][] _grid;
 	private int _buttons;
-
-	private static final int GRID_SIZE = 9;
+	private final int _size;
 
 	/**
 	 * Constructs a new QuiltBoard with 0 buttons.
 	 */
 	public QuiltBoard() {
-		_grid = new boolean[GRID_SIZE][GRID_SIZE];
+		_size = Constants.GRID_SIZE.getValue();
+		_grid = new boolean[_size][_size];
 		_buttons = 0;
 	}
 
@@ -37,8 +37,8 @@ public class QuiltBoard {
 	 */
 	public int getEmpty() {
 		var score = 0;
-		for (int i = 0; i < GRID_SIZE; i++) {
-			for (int j = 0; j < GRID_SIZE; j++) {
+		for (int i = 0; i < _size; i++) {
+			for (int j = 0; j < _size; j++) {
 				if (!_grid[i][j]) {
 					score++;
 				}
@@ -78,13 +78,26 @@ public class QuiltBoard {
 	 * @param piece : the piece you want to place
 	 */
 	public void addPieceAutomatically(Piece piece) {
-		for (int i = 0; i < GRID_SIZE; i++) {
-			for (int j = 0; j < GRID_SIZE; j++) {
+		for (int i = 0; i < _size; i++) {
+			for (int j = 0; j < _size; j++) {
 				if (addPiece(piece, j, i)) {
 					return;
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Creates a String that contains every number to the size
+	 * 
+	 * @return String
+	 */
+	public String numberLine() {
+		var builder = new StringBuilder();
+		for (int i = 1; i <= _size; i++) {
+			builder.append(i).append(" ");
+		}
+		return builder.toString();
 	}
 
 	/**
@@ -92,11 +105,11 @@ public class QuiltBoard {
 	 */
 	public void display() {
 		var builder = new StringBuilder();
-		builder.append("    1 2 3 4 5 6 7 8 9\n").append("  +------------------+\n");
-		for (int i = 0; i < GRID_SIZE; i++) {
+		builder.append(numberLine() + "\n").append("  +------------------+\n");
+		for (int i = 0; i < _size; i++) {
 			builder.append(i + 1).append(" |");
 
-			for (int j = 0; j < GRID_SIZE; j++) {
+			for (int j = 0; j < _size; j++) {
 				builder.append(_grid[i][j] ? " x" : " .");
 			}
 			builder.append(" |\n");
@@ -169,7 +182,7 @@ public class QuiltBoard {
 	 * @return true if yes, false if not
 	 */
 	private boolean isPlacebale(Piece piece, int x, int y) {
-		if (!piece.fitArea(x, y, GRID_SIZE)) {
+		if (!piece.fitArea(x, y, _size)) {
 			return false;
 		}
 

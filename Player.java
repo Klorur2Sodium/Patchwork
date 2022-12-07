@@ -143,7 +143,7 @@ public class Player {
 	 * @param timeBoard : the timeboard
 	 * @param version : given version of the game
 	 */
-	public void skipTurn(Scanner scanner, int nbMoves, TimeBoard timeBoard, String version) {
+	public void skipTurn(Scanner scanner, int nbMoves, TimeBoard timeBoard, Constants version) {
 		Objects.requireNonNull(timeBoard);
 		if (nbMoves < 0) {
 			throw new IllegalArgumentException("the player can't move back");
@@ -169,7 +169,7 @@ public class Player {
 	 * @param timeBoard : the timeboard
 	 * @param version : given version of the game
 	 */
-	public void buyPiece(Piece piece, Scanner scanner, TimeBoard timeBoard, String version) {
+	public void buyPiece(Piece piece, Scanner scanner, TimeBoard timeBoard, Constants version) {
 		Objects.requireNonNull(piece);
 		Objects.requireNonNull(scanner);
 		Objects.requireNonNull(timeBoard);
@@ -179,7 +179,7 @@ public class Player {
 			return;
 		}
 		
-		if (version.equals("d")) {
+		if (version == Constants.PHASE1) {
 			automaticPlacing(piece, scanner, version);
 		} else {
 			placingPhase(piece, scanner, version);
@@ -198,7 +198,7 @@ public class Player {
 	 * @param timeBoard : the timeboard
 	 * @param version : given version of the game
 	 */
-	private void move(Scanner scanner, int nbMoves, TimeBoard timeBoard, String version) {
+	private void move(Scanner scanner, int nbMoves, TimeBoard timeBoard, Constants version) {
 		Box currentBox;
 		timeBoard.getBoard().get(_position).remove(this);
 		for (int i = 0; i < nbMoves && _position < timeBoard.getBoard().size() - 1; i++) {
@@ -210,6 +210,31 @@ public class Player {
 	}
 
 	// Methods - Ascii version
+	
+	/**
+	 * the method returns the constant corresponding to the string given in parameter
+	 * @param String
+	 * @return Constants
+	 */
+	private Constants choice(String s) {
+		return switch(s) {
+		case "1" -> Constants.ONE;
+		case "2" -> Constants.TWO;
+		case "3" -> Constants.THREE;
+		case ("0") -> Constants.SKIP;
+		default -> Constants.DEFAULT;
+		};
+	}
+	
+	/**
+	 * The method returns if the choice taken is o buy a piece
+	 * @param choice
+	 * @return
+	 */
+	private boolean buy(Constants choice) {
+		return choice == Constants.ONE || choice == Constants.TWO || choice == Constants.THREE;
+	}
+	
 	/**
 	 * Handles the buying phase
 	 * 
@@ -217,45 +242,23 @@ public class Player {
 	 * @param p : the pieceHandler containing all the pieces
 	 * @return choice of the player
 	 */
-	public int buyingPhase(Scanner scanner, PieceHandler p) {
-		int playerChoice;
-		do {
-			try {
-				System.out.println(_name + "'s turn :\n" + "You currently have " + _buttonsCount + " buttons \n"
-						+ "Enter 1, 2 or 3 to select the according piece or enter 0 if you don't want to buy any pieces");
-				playerChoice = Integer.parseInt(scanner.next());
-			} catch (NumberFormatException e) {
-				playerChoice = -1;
-			}
-			if (playerChoice == 0) {
+	public Constants buyingPhase(Scanner scanner, PieceHandler p) {
+		Constants playerChoice;
+		String s;
+		while (true) {
+			System.out.println(_name + "'s turn :\n" + "You currently have " + _buttonsCount + " buttons \n"
+					+ "Enter 1, 2 or 3 to select the according piece or enter 0 if you don't want to buy any pieces");
+			s = scanner.next();
+			playerChoice = choice(s);
+			if (playerChoice == Constants.SKIP) {
 				return playerChoice;
 			}
-		} while (playerChoice < 1 || playerChoice > 3 || !canBuyPiece(p.getPiece(playerChoice - 1)));
-
-		return playerChoice;
-	}
-
-	/**
-	 * Asks the player he wants to rotate/ reverse its piece and does
-	 * it if he wants to.
-	 * 
-	 * @param scan : the scanner
-	 * @param p : the given piece
-	 * @return the rotated, reversed or untouched piece
-	 */
-	private Piece flipPiece(Scanner scan, Piece piece) {
-		String res;
-		do {
-			System.out.println("Do you want to flip the piece");
-			System.out.println("Enter f if you want  to rotate it counter clockwise, r if you want to reverse it and s if you want to stop");
-			res = scan.next();
-			switch (res) {
-			case "f" -> piece = piece.flip();
-			case "r" -> piece = piece.reverse();
+			if (buy(playerChoice)) {
+				if (canBuyPiece(p.getPiece(Integer.parseInt(s) - 1))) {
+					return playerChoice;
+				}
 			}
-			System.out.println(piece.bodyString());
-		} while (!res.equals("s"));
-		return piece;
+		}
 	}
 	
 	/**
@@ -266,7 +269,7 @@ public class Player {
 	 * @param scanner : the scanner
 	 * @param version : given version of the game
 	 */
-	public void automaticPlacing(Piece piece, Scanner scanner, String version) {
+	public void automaticPlacing(Piece piece, Scanner scanner, Constants version) {
 		String userInput;
 		
 		do {
@@ -282,20 +285,42 @@ public class Player {
 	}
 
 	/**
+	 * Asks the player he wants to rotate/ reverse its piece and does
+	 * it if he wants to.
+	 * 
+	 * @param scan : the scanner
+	 * @param p : the given piece
+	 * @return the rotated, reversed or untouched piece
+	 */
+	private Piece flipPiece(Scanner scan, Piece p) {
+		String res;
+		do {
+			System.out.println("Do you want to flip the piece");
+			System.out.println("Enter f if you want  to rotate it counter clockwise, r if you want to reverse it and s if you want to stop");
+			res = scan.next();
+			switch (res) {
+			case "f" -> p = p.flip();
+			case "r" -> p = p.reverse();
+			}
+			System.out.println(p.bodyString());
+		} while (!res.equals("s"));
+		return p;
+	}
+	
+	/**
 	 * Handles the placing phase.
 	 * 
 	 * @param piece : the piece the player wants to place
 	 * @param scanner : the given scanner
 	 * @param version : given version of the game
 	 */
-	public void placingPhase(Piece piece, Scanner scanner, String version) {
+	public void placingPhase(Piece piece, Scanner scanner, Constants version) {
 		int x, y;
 		_quiltBoard.display();
 		System.out.println(piece.bodyString());
-		if (version.equals("a")) {
+		if (version == Constants.PHASE2) {
 			piece = flipPiece(scanner, piece);
 		}
-		
 		do {
 			try {
 				System.out.println("Enter the x coordinate of the top right corner of your piece in the quiltboard");

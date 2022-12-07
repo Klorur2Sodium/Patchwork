@@ -17,7 +17,7 @@ import java.util.Scanner;
 public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, IGameBuilder {
 	
 	private Player[] _players;
-	private String _chosenVersion;
+	private Constants _chosenVersion;
 	private final Scanner _scanner;
 	
 	/**
@@ -45,8 +45,16 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 	 * 
 	 * @return String 
 	 */
-	public String getVersion() {
+	public Constants getVersion() {
 		return _chosenVersion;
+	}
+	
+	private Constants readVersion(String choice) {
+		return switch(choice) {
+			case("a") -> Constants.PHASE2;
+			case("d") -> Constants.PHASE1;
+			default -> Constants.DEFAULT;
+		};
 	}
 	
 	/**
@@ -58,8 +66,8 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 	public IGamePlayerSelector chooseVersion() {
 		do {
 			System.out.println("Enter 'd' to play to the demo ascii version and 'a' for the complete ascii version");
-			_chosenVersion = _scanner.next();
-		} while(!_chosenVersion.equals("d") && !_chosenVersion.equals("a"));
+			_chosenVersion = readVersion(_scanner.next());
+		} while(_chosenVersion == Constants.DEFAULT);
 				
 		return this;
 	}
@@ -130,9 +138,9 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 	 * @param file : the file containing the information
 	 * @param timeBoard : the time board
 	 */
-	private void initTimeBoard(String file, TimeBoard t) {
+	private void initTimeBoard(String file, TimeBoard timeBoard) {
 		try {
-			t.loadTimeBoard(Path.of(file));
+			timeBoard.loadTimeBoard(Path.of(file));
 		} catch (IOException e) {
 			System.err.println(e.getMessage());
 			System.exit(1);
@@ -147,10 +155,10 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 	 * @param file : the file containing the information
 	 * @param pieceHandler : the piece handler
 	 */
-	private void initPieceHandler(String file, PieceHandler p) {
+	private void initPieceHandler(String file, PieceHandler piecHandler) {
 		try {
-			p.loadPieces(Path.of(file));
-			Collections.shuffle(p.getPieces());
+			piecHandler.loadPieces(Path.of(file));
+			Collections.shuffle(piecHandler.getPieces());
 		} catch (IOException e) {
 			System.out.println("pitié");
 			System.err.println(e.getMessage());

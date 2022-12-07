@@ -13,7 +13,7 @@ import java.util.List;
  * @author COUSSON Sophie
  */
 public class Box {
-	private char _status;
+	private Constants _status;
 	private ArrayList<Player> _players = new ArrayList<>();
 
 	/**
@@ -25,9 +25,9 @@ public class Box {
 		Objects.requireNonNull(status);
 
 		switch (status) {
-		case '|' -> _status = status;
-		case '0' -> _status = status;
-		case 'x' -> _status = status;
+		case '|' -> _status = Constants.EMPTY;
+		case '0' -> _status = Constants.BUTTON;
+		case 'x' -> _status = Constants.PATCH;
 		default -> throw new IllegalArgumentException("status must be equal to |, 0 or x");
 		}
 	}
@@ -47,7 +47,7 @@ public class Box {
 	 * 
 	 * @return a char 
 	 */
-	public char getStatus() {
+	public Constants getStatus() {
 		return _status;	
 	}
 
@@ -92,26 +92,30 @@ public class Box {
 	 * @param scanner for the x event
 	 * @param version the version of the game
 	 */
-	public void boxEvent(Player player, Scanner scanner, String version) {
+	public void boxEvent(Player player, Scanner scanner, Constants version) {
 		Objects.requireNonNull(player);
 
 		switch (_status) {
-		case '0':
+		case BUTTON:
 			player.payEvent();
 			break;
-		case 'x':
+		case PATCH:
 			var patch = new Piece();
 			patch.parseLine("1:0:0:0");
 			player.placingPhase(patch, scanner, version);
-			_status = '|';
+			_status = Constants.EMPTY;
 			break;
-		case '|':
+		default : 
 			return;
 		}
 	}
 
 	@Override
 	public String toString() {
-		return "" + _status;
+		switch (_status) {
+		case PATCH : return "x";
+		case BUTTON: return "0";
+		default : return "|";
+		}
 	}
 }

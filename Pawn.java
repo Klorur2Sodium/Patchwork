@@ -10,7 +10,7 @@ import java.util.Objects;
  * @author FRAIZE Victor
  */
 public class Pawn {
-    private final String _color;
+    private final Constants _color;
     
     /**
      * Constructs a new Pawn with the given non null color
@@ -19,11 +19,21 @@ public class Pawn {
      */
     public Pawn(String color) {
         Objects.requireNonNull(color);
-        _color = color;
+        switch(color) {
+	        case("Blue") -> _color = Constants.BLUE;
+	        case("Red") -> _color = Constants.RED;
+	        default -> _color = Constants.GREEN;
+        }
     }
     
     @Override
     public String toString() {
-        return _color.substring(0, 1);
+    	switch(_color) {
+	    	case BLUE : return "B";
+	    	case RED : return "R";
+	    	case GREEN : return "G";
+	    	default:
+	    		return " ";
+    	}
     }
 }

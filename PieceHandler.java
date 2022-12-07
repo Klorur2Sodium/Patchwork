@@ -160,7 +160,8 @@ public class PieceHandler {
 				System.out.println(Caption());
 			}
 			System.out.println(displaySelectablePiecesNumber());
-			System.out.println(displayPieces());
+			displayPieces();
+
 		}
 		
 		/**
@@ -201,8 +202,8 @@ public class PieceHandler {
 		private String bodyString() {
 			var builder = new StringBuilder();
 			int index;
-			int biggestPiece = getBiggestPiece();
-			for (int line = 0; line < biggestPiece; line++) {
+			
+			for (int line = 0; line < getBiggestPiece(); line++) {
 				for (int j = 0; j < _piecesDisplayed && j < _pieces.size(); j++) {
 					index = getRealIndex(j + _posNeutralPawn);
 					builder.append(_pieces.get(index).bodyLine(line));
@@ -262,19 +263,22 @@ public class PieceHandler {
 		/**
 		 * Displays the first 12 pieces if possible and all their informations
 		 */
-		private String displayPieces() {
+		private void displayPieces() {
 			var cost = new StringBuilder();
 			var moves = new StringBuilder();
-			var buttons = new StringBuilder();
+			var button = new StringBuilder();
 			int index;
 
 			for (int i = _posNeutralPawn; i < _posNeutralPawn + _piecesDisplayed && i < _pieces.size(); i++) {
 				index = getRealIndex(i);
 				cost.append(costString(index));
 				moves.append(movesString(index));
-				buttons.append(buttonString(index));
+				button.append(buttonString(index));
 			}
-			return bodyString() + cost.toString() + "\n" + moves.toString() + "\n" + buttons.toString();
+			System.out.println(bodyString());
+			System.out.println(cost.toString());
+			System.out.println(moves.toString());
+			System.out.println(button.toString());
 		}
 
 	}

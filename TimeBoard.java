@@ -118,7 +118,8 @@ public class TimeBoard {
 	 */
 	public void display(int posCurrent) {
 		var builder = new StringBuilder();
-		int size = (_board.size() - posCurrent > 25) ? 25 : _board.size() - posCurrent;
+		int windowSize =  Constants.WINDOW_SIZE.getValue();
+		int size = (_board.size() - posCurrent > windowSize) ? windowSize : _board.size() - posCurrent;
 
 		builder.append(printNTimes(" _____", size));
 		builder.append(printNTimes("|     ", size));

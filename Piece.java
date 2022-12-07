@@ -187,8 +187,8 @@ public class Piece {
 	 */
 	public String spacesCaption(String type) {
 		var builder = new StringBuilder();
-		int lenCaption = (_cost < 10)? 5 : 6;
-		if (!type.equals("cost") && lenCaption == 6) {
+		int lenCaption = (_cost < 10)? Constants.SMALL_COMMENT.getValue() : Constants.BIG_COMMENT.getValue();
+		if (!type.equals("cost") && lenCaption == Constants.BIG_COMMENT.getValue()) {
 			builder.append(" ");
 		}
 		if (xSize > lenCaption) {

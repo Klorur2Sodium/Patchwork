@@ -1,5 +1,11 @@
 package fr.uge.patchwork;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.geom.Rectangle2D;
+
+import fr.umlv.zen5.ApplicationContext;
+
 /**
  * This class stores the information about a quilt board. it also handles adding
  * a piece to it and displaying the grid.
@@ -64,7 +70,7 @@ public class QuiltBoard {
 		for (int i = 0; i < piece.getYSize(); i++) {
 			for (int j = 0; j < piece.getXSize(); j++) {
 				if (piece.getBodyValue(i, j)) {
-					_grid[i + y][j + x] = true;
+					_grid[j + y][i + x] = true;
 				}
 			}
 		}
@@ -105,7 +111,7 @@ public class QuiltBoard {
 	 */
 	public void display() {
 		var builder = new StringBuilder();
-		builder.append(numberLine() + "\n").append("  +------------------+\n");
+		builder.append("    " + numberLine() + "\n").append("  +------------------+\n");
 		for (int i = 0; i < _size; i++) {
 			builder.append(i + 1).append(" |");
 
@@ -117,6 +123,27 @@ public class QuiltBoard {
 		builder.append("  +------------------+\n");
 		System.out.println(builder.toString());
 	}
+	
+	public void draw(ApplicationContext context, float topX, float topY, float size) {
+		var grid = new Rectangle2D.Float(topX, topY, size, size);
+		float cubeSize = size / _size; 
+		context.renderFrame(graphics -> {
+	        for (int i = 0; i < _size; i++) {
+				for (int j = 0; j < _size; j++) {
+					var cube = new Rectangle2D.Float(topX + i*cubeSize , topY + j*cubeSize, cubeSize, cubeSize);
+			        if (_grid[i][j]) {
+			        	graphics.setColor(Color.PINK);
+			        	graphics.fill(cube);
+			        } else {
+			        	graphics.setColor(Color.BLACK);
+				        graphics.draw(cube);
+			        }
+				}
+			}
+	        graphics.setStroke(new BasicStroke(5));
+	        graphics.draw(grid);
+	      });
+	}
 
 	/**
 	 * Checks if the quilt board possesses a seven by seven square
@@ -126,14 +153,16 @@ public class QuiltBoard {
 	 */
 	public boolean checkSpecialTile() {
 		var lenLig = 0;
-		for (int col = 0; col < 3; col++) {
-			for (int lig = 0; lig < 9; lig++) {
+		int tileSize = Constants.SPECIAL_TILE.getValue();
+		int boardSize = Constants.GRID_SIZE.getValue();
+		for (int col = 0; col <= boardSize - tileSize; col++) {
+			for (int lig = 0; lig < boardSize; lig++) {
 				if (_grid[col][lig]) {
 					lenLig++;
 				} else {
 					lenLig = 0;
 				}
-				if (lenLig == 7 && checkSpace(lig - 6, col)) {
+				if (lenLig == tileSize && checkSpace(lig - (tileSize - 1), col)) {
 					return true;
 				}
 			}
@@ -150,8 +179,9 @@ public class QuiltBoard {
 	 * @return
 	 */
 	private boolean checkSpace(int line, int col) {
-		for (int i = 1; i < 7; i++) {
-			for (int j = 0; j < 7; j++) {
+		int tileSize = Constants.SPECIAL_TILE.getValue();
+		for (int i = 1; i < tileSize; i++) {
+			for (int j = 0; j < tileSize; j++) {
 				if (!_grid[i + col][j + line]) {
 					return false;
 				}

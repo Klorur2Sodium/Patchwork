@@ -1,6 +1,10 @@
 package fr.uge.patchwork;
 
+import java.awt.Color;
+import java.awt.geom.Rectangle2D;
 import java.util.Objects;
+
+import fr.umlv.zen5.ApplicationContext;
 
 /**
  * This class stores the information about a piece,
@@ -17,6 +21,7 @@ public class Piece {
 	private byte _moves;
 	private byte xSize;
 	private byte ySize;
+	private Color _color;
 	
 	/**
 	 * Getter for the cost of the piece
@@ -92,7 +97,16 @@ public class Piece {
 		temp.xSize = (byte) x;
 		temp.ySize = (byte) y;
 		temp._body = new boolean[x][y];
+		temp._color = _color;
 		return temp;
+	}
+	
+	private Color chooseRandomColor() {
+		Color[] colors = {Color.BLUE, Color.RED, Color.GREEN, Color.MAGENTA,
+				Color.CYAN, Color.GRAY, Color.ORANGE, Color.PINK, Color.YELLOW,
+				};
+		int rand = (int)( Math.random() * colors.length);
+		return colors[rand];
 	}
 	
 	/**
@@ -108,6 +122,7 @@ public class Piece {
 		_cost = (byte) Integer.parseInt(splitLine[1]);
 		_moves = (byte) Integer.parseInt(splitLine[2]);
 		_buttons = (byte) Integer.parseInt(splitLine[3]);
+		_color = chooseRandomColor();
 	}
 
 	/**
@@ -280,4 +295,27 @@ public class Piece {
 
 		return builder.toString() + spacesBody();
 	}
+
+	/**
+	 * The function draws the piece on the cordinates (x, y)
+	 * @param context
+	 * @param x
+	 * @param y
+	 */
+	public void draw(ApplicationContext context, float x, float y, float side) {
+		context.renderFrame(graphics -> {
+    		for (var i = 0; i < xSize; i++) {
+    			for (var j = 0; j < ySize; j++) {
+    				if (_body[i][j]) {
+    					var square = new Rectangle2D.Float(x + i*side, y + j*side, side, side);
+    					graphics.setColor(_color);
+        				graphics.fill(square);
+        				graphics.setColor(Color.BLACK);
+        				graphics.draw(square);
+    				}
+    			}
+    		}
+	      });
+	}
+
 }

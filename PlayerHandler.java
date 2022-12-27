@@ -67,6 +67,7 @@ public class PlayerHandler {
 			if (_players[_current].getQuiltboard().checkSpecialTile()) {
 				_players[_current].addSpecialTile();
 				_specialTilesRemaining = false;
+				System.out.println("okok");
 			}
 		}
 	}

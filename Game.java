@@ -3,6 +3,14 @@ package fr.uge.patchwork;
 import java.util.Objects;
 import java.util.Scanner;
 
+import fr.umlv.zen5.Application;
+import fr.umlv.zen5.Event;
+import fr.umlv.zen5.Event.Action;
+import fr.umlv.zen5.ScreenInfo;
+
+import java.awt.Color;
+import java.awt.geom.Rectangle2D;
+
 /**
  * This class contains the main loop of the game.
  * 
@@ -69,6 +77,38 @@ public class Game {
 			}
 		}
 		_playerHandler.displayWinner();
+	}
+	
+	void draw() {	
+		var quil = new QuiltBoard();
+		var piece = new Piece();
+		piece.parseLine("111,101:2:3:4");
+		quil.addPiece(piece, 0, 0);
+		Application.run(Color.LIGHT_GRAY, context -> {
+			ScreenInfo screenInfo = context.getScreenInfo();
+		    float width = screenInfo.getWidth();
+		    float height = screenInfo.getHeight();
+			      context.renderFrame(graphics -> {
+			        graphics.setColor(Color.LIGHT_GRAY);
+			        graphics.fill(new  Rectangle2D.Float(0, 0, width, height));
+			      });
+
+			      _timeBoard.draw(context, width, 0);
+		    	  _pieceHandler.draw(context, 3*(width/4), width, height);
+		    	  quil.draw(context, 200, 200, 500);
+			      while (true) {
+			    	  Event event = context.pollOrWaitEvent(10);
+			    	  if (event == null) {  // no event
+				          continue;
+				      }
+			    	  Action action = event.getAction();
+			          if (action == Action.KEY_PRESSED || action == Action.KEY_RELEASED) {
+				          System.out.println("abort abort !");
+				          context.exit(0);
+				          return;
+			          }
+			      }
+			    });  
 	}
 
 	/**

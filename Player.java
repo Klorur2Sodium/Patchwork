@@ -334,6 +334,14 @@ public class Player {
 		} while (!_quiltBoard.addPiece(piece, x - 1, y - 1));
 		_quiltBoard.display();
 	}
+	
+	/**
+	 * The function returns the letter corresponding to the pawn's color
+	 * @return a letter
+	 */
+	public String display() {
+		return _pawn.toString();
+	}
 
 	@Override
 	public String toString() {

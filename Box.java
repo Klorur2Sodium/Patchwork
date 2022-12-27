@@ -2,6 +2,12 @@ package fr.uge.patchwork;
 
 import java.util.Objects;
 import java.util.Scanner;
+
+import fr.umlv.zen5.ApplicationContext;
+
+import java.awt.Color;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -108,6 +114,30 @@ public class Box {
 		default : 
 			return;
 		}
+	}
+	
+	/**
+	 * The function draws the buttons or the patch that could be on a box on (x, y)
+	 * @param context
+	 * @param x
+	 * @param y
+	 */
+	public void draw(ApplicationContext context, float x, float y) {
+    	context.renderFrame(graphics -> {
+    		switch(_status) {
+			case BUTTON : 
+				graphics.setColor(Color.CYAN);
+				Ellipse2D.Float ellipse = new Ellipse2D.Float(x - 5, y - 5, 10, 10);
+				graphics.fill(ellipse);
+				return;
+			case PATCH :
+				graphics.setColor(Color.MAGENTA);
+				var rectangle = new Rectangle2D.Float(x-5, y-5, 10, 10);
+				graphics.fill(rectangle);
+			default : return;
+			
+    		}
+	      });
 	}
 
 	@Override

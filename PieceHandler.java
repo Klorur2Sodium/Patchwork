@@ -3,6 +3,12 @@ package fr.uge.patchwork;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import fr.umlv.zen5.ApplicationContext;
+
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.geom.Line2D;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -144,6 +150,50 @@ public class PieceHandler {
 	public void display(boolean captions) {
 		var boardBuilder = new AsciiPieceDisplayer();
 		boardBuilder.display(captions);
+	}
+	
+	/**
+	 * the function draws a line from the end of the quiltboard to the end of the window
+	 * @param context
+	 * @param x
+	 * @param height
+	 */
+	private void drawDelimitation(ApplicationContext context, float x, float height) {
+		var line = new Line2D.Float(x, Constants.BOX_SIZE.getValue(), x, height - 5);
+		context.renderFrame(graphics -> {
+			graphics.setStroke(new BasicStroke(5));
+    		graphics.setColor(Color.BLACK);
+    		graphics.draw(line);
+	      });
+	}
+	
+	/**
+	 * The function draws the PieceHandler
+	 * @param context
+	 * @param topX
+	 * @param width
+	 * @param height
+	 */
+	public void draw(ApplicationContext context, float topX, float width, float height) {
+		float x = topX;
+		float y = Constants.BOX_SIZE.getValue() + 100;
+		float biggestY = 0;
+		drawDelimitation(context, topX - 10, height);
+		for (int i = 0; i < _piecesDisplayed && i < _posNeutralPawn + _pieces.size(); i++) {
+			var index = getRealIndex(i + _posNeutralPawn);
+			var piece = _pieces.get(index);
+			if (y + piece.getYSize() >=  height) {
+				return;
+			}
+			if (piece.getXSize() * Constants.PIECE_SQUARE.getValue() + x >= width) {
+				x = topX;
+				y += biggestY + 50;
+				biggestY = 0;
+			}
+			piece.draw(context, x, y, Constants.PIECE_SQUARE.getValue());
+			x += piece.getXSize() * Constants.PIECE_SQUARE.getValue() + 50;
+			biggestY = (piece.getYSize() * Constants.PIECE_SQUARE.getValue() > biggestY)? piece.getYSize()  * Constants.PIECE_SQUARE.getValue() : biggestY; 
+		}
 	}
 	
 	/**

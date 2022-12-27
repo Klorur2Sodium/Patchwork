@@ -14,7 +14,8 @@ public enum Constants {
 	BLUE(1), RED(2), GREEN(3),
 	SMALL_COMMENT(5), BIG_COMMENT(6),
 	GRID_SIZE(9),
-	WINDOW_SIZE(25);
+	WINDOW_SIZE(25), BOX_SIZE(75), PIECE_SQUARE(20),
+	SPECIAL_TILE(7);
 	
 	private final int _value;
 	

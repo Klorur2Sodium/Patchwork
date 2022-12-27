@@ -3,6 +3,12 @@ package fr.uge.patchwork;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import fr.umlv.zen5.ApplicationContext;
+
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.geom.Line2D;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -110,6 +116,16 @@ public class TimeBoard {
 		}
 		display(posCurrent);
 	}
+	
+	
+	/**
+	 * The function returns the number of boxes it's necessary to print
+	 * @param posCurrent
+	 * @return the number of boxes
+	 */
+	private int getRemainningSize(int posCurrent) {
+		return (_board.size() - posCurrent > Constants.WINDOW_SIZE.getValue()) ? Constants.WINDOW_SIZE.getValue() : _board.size() - posCurrent;
+	}
 
 	/**
 	 * Displays the TimeBoard in Ascii art
@@ -118,8 +134,7 @@ public class TimeBoard {
 	 */
 	public void display(int posCurrent) {
 		var builder = new StringBuilder();
-		int windowSize =  Constants.WINDOW_SIZE.getValue();
-		int size = (_board.size() - posCurrent > windowSize) ? windowSize : _board.size() - posCurrent;
+		int size = getRemainningSize(posCurrent);
 
 		builder.append(printNTimes(" _____", size));
 		builder.append(printNTimes("|     ", size));
@@ -127,7 +142,7 @@ public class TimeBoard {
 		for (int i = posCurrent; i < size; i++) {
 			String asciiPawn = " ";
 			if (_board.get(i).getPlayer() != null) {
-				asciiPawn = _board.get(i).getPlayer().getPawn().toString();
+				asciiPawn = _board.get(i).getPlayer().display(); // modification
 			}
 			builder.append(_board.get(i).toString()).append("  ").append(asciiPawn).append("  ");
 		}
@@ -143,7 +158,7 @@ public class TimeBoard {
 	private void displayCaption() {
 		System.out.println("Caption :\n" + "  0 : button\n" + "  x : patch\n" + "  B, R : pawn of a player\n");
 	}
-
+	
 	/**
 	 * Returns the pattern line stored n times in a string.
 	 * 
@@ -159,5 +174,45 @@ public class TimeBoard {
 		builder.append("\n");
 
 		return builder.toString();
+	}
+	
+	/**
+	 * the functions draw a box line that begins on (x, y)
+	 * @param context
+	 * @param x
+	 * @param y
+	 */
+	private void drawLine(ApplicationContext context, float x, float y) {
+		context.renderFrame(graphics -> {
+			var line = new Line2D.Float(x, y, x, y + Constants.BOX_SIZE.getValue());
+			graphics.setStroke(new BasicStroke(5));
+			graphics.setColor(Color.BLACK);
+			graphics.draw(line);
+		});
+	}
+	
+	/**
+	 * The function draws the TimeBoard
+	 * @param context
+	 * @param width
+	 * @param posCurrent position of the current player 
+	 */
+	public void draw(ApplicationContext context, float width, int posCurrent) {
+		int box = Constants.BOX_SIZE.getValue();
+		float boxWidth = width / Constants.WINDOW_SIZE.getValue();
+		int size = getRemainningSize(posCurrent);
+		Line2D line = new Line2D.Float(5, box, width - 5, box);
+		context.renderFrame(graphics -> {
+			graphics.setStroke(new BasicStroke(5));
+    		graphics.setColor(Color.BLACK);
+    		graphics.draw(line);
+	      });
+		for (var i = 0; i < size; i++) {
+			drawLine(context, i * boxWidth, 0);
+			if (_board.get(i + posCurrent).getPlayer() != null) {
+				_board.get(i + posCurrent).getPlayer().getPawn().draw(context, i * boxWidth + boxWidth / 2, box/2);
+			}
+			_board.get(i+posCurrent).draw(context, i*boxWidth, box/2);
+		}
 	}
 }

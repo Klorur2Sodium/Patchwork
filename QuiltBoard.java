@@ -124,10 +124,19 @@ public class QuiltBoard {
 		System.out.println(builder.toString());
 	}
 	
+	/**
+	 * The function draws the grid on the screen
+	 * @param context
+	 * @param topX
+	 * @param topY
+	 * @param size
+	 */
 	public void draw(ApplicationContext context, float topX, float topY, float size) {
 		var grid = new Rectangle2D.Float(topX, topY, size, size);
 		float cubeSize = size / _size; 
 		context.renderFrame(graphics -> {
+			String s = "Recovered buttons : ";
+			int x = 0, y = 0;
 	        for (int i = 0; i < _size; i++) {
 				for (int j = 0; j < _size; j++) {
 					var cube = new Rectangle2D.Float(topX + i*cubeSize , topY + j*cubeSize, cubeSize, cubeSize);
@@ -138,10 +147,13 @@ public class QuiltBoard {
 			        	graphics.setColor(Color.BLACK);
 				        graphics.draw(cube);
 			        }
+			        y = j;
 				}
+				x = i;
 			}
 	        graphics.setStroke(new BasicStroke(5));
 	        graphics.draw(grid);
+	        graphics.drawString(s + _buttons, topX + x*cubeSize + s.length(), topY + (y+1)*cubeSize + cubeSize/3);
 	      });
 	}
 

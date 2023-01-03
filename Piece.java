@@ -304,6 +304,8 @@ public class Piece {
 	 */
 	public void draw(ApplicationContext context, float x, float y, float side) {
 		context.renderFrame(graphics -> {
+			graphics.drawString("Cost: " + _cost, x, y-1);
+			
     		for (var i = 0; i < xSize; i++) {
     			for (var j = 0; j < ySize; j++) {
     				if (_body[i][j]) {

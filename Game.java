@@ -80,10 +80,6 @@ public class Game {
 	}
 	
 	void draw() {	
-		var quil = new QuiltBoard();
-		var piece = new Piece();
-		piece.parseLine("111,101:2:3:4");
-		quil.addPiece(piece, 0, 0);
 		Application.run(Color.LIGHT_GRAY, context -> {
 			ScreenInfo screenInfo = context.getScreenInfo();
 		    float width = screenInfo.getWidth();
@@ -95,7 +91,7 @@ public class Game {
 
 			      _timeBoard.draw(context, width, 0);
 		    	  _pieceHandler.draw(context, 3*(width/4), width, height);
-		    	  quil.draw(context, 200, 200, 500);
+		    	  _playerHandler.draw(context, 10, Constants.BOX_SIZE.getValue() + Constants.BOX_SIZE.getValue()/2);
 			      while (true) {
 			    	  Event event = context.pollOrWaitEvent(10);
 			    	  if (event == null) {  // no event

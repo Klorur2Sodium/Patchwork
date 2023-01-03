@@ -1,7 +1,10 @@
 package fr.uge.patchwork;
 
+import java.awt.Color;
 import java.util.Objects;
 import java.util.Scanner;
+
+import fr.umlv.zen5.ApplicationContext;
 
 /**
  * This class stores the information about the Player. It also handles 
@@ -343,6 +346,24 @@ public class Player {
 		return _pawn.toString();
 	}
 
+	/**
+	 * The function draws the information of the player 
+	 * @param context
+	 * @param topX
+	 * @param topY
+	 */
+	public void draw(ApplicationContext context, float topX, float topY) {
+		context.renderFrame(graphics -> {
+			graphics.drawString(_name, topX, topY);
+			graphics.drawString("You still have " + _buttonsCount + " buttons", topX, topY+15);
+			if (_specialTile) {
+				graphics.setColor(Color.RED);
+				graphics.drawString("SPECIAL TILE", 500, topY+15);
+			}
+	      });
+		_quiltBoard.draw(context, 200, 200, 500);
+	}
+	
 	@Override
 	public String toString() {
 		var builder= new StringBuilder();

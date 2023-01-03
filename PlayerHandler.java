@@ -2,6 +2,8 @@ package fr.uge.patchwork;
 
 import java.util.Objects;
 
+import fr.umlv.zen5.ApplicationContext;
+
 /**
  * The class stores an array of players and handles the current player, 
  * the end of the game and the winner.
@@ -117,6 +119,16 @@ public class PlayerHandler {
 	public void displayWinner() {
 		var winner = getVictoriousPlayer();
 		System.out.println(winner.getName() + " won with " + winner.getScore() + " points");
+	}
+	
+	/**
+	 * The function calls the drawing function of the current player
+	 * @param context
+	 * @param topX
+	 * @param topY
+	 */
+	public void draw(ApplicationContext context, float topX, float topY) {
+		_players[_current].draw(context, topX, topY);
 	}
 	
 }

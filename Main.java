@@ -17,6 +17,6 @@ public class Main {
 			.build();
 		
 		//game.playingPhase(new Scanner(System.in));
-		game.draw();
+		game.play();
 	}
 }

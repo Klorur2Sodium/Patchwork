@@ -53,6 +53,7 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 		return switch(choice) {
 			case("a") -> Constants.PHASE2;
 			case("d") -> Constants.PHASE1;
+			case("g") -> Constants.PHASE3;
 			default -> Constants.DEFAULT;
 		};
 	}
@@ -65,7 +66,9 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 	 */
 	public IGamePlayerSelector chooseVersion() {
 		do {
-			System.out.println("Enter 'd' to play to the demo ascii version and 'a' for the complete ascii version");
+			System.out.println("Enter 'd' to play to the demo ascii version");
+			System.out.println("'a' for the complete ascii version");
+			System.out.println("'g' for the graphic version");
 			_chosenVersion = readVersion(_scanner.next());
 		} while(_chosenVersion == Constants.DEFAULT);
 				
@@ -107,10 +110,10 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 	public Game build() {
 		var timeBoard = new TimeBoard();
 		var pieces = PieceHandler.Handler();
-		var players = new PlayerHandler(_players, _chosenVersion.equals("a"));
+		var players = new PlayerHandler(_players, !_chosenVersion.equals("d"));
 		
-		var boardFile = _chosenVersion.equals("a") ? "load_time_board" : "load_time_board_demo";
-		var pieceFile = _chosenVersion.equals("a") ? "load_Normal" : "load_phase1";
+		var boardFile = _chosenVersion == Constants.PHASE1 ? "load_time_board_demo" :  "load_time_board";
+		var pieceFile = _chosenVersion == Constants.PHASE1 ? "load_phase1" : "load_Normal";
 		
 		init(boardFile, pieceFile, timeBoard, pieces, players);
 		

@@ -3,9 +3,8 @@ package fr.uge.patchwork;
 import java.util.Objects;
 import java.util.Scanner;
 
-import fr.umlv.zen5.ApplicationContext;
-
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -18,9 +17,9 @@ import java.util.List;
  * @author FRAIZE Victor
  * @author COUSSON Sophie
  */
-public class Box {
+public class Box extends GraphicalObject {
 	private Constants _status;
-	private ArrayList<Player> _players = new ArrayList<>();
+	private final ArrayList<Player> _players = new ArrayList<>();
 
 	/**
 	* The method is the constructor it takes a char status and put it on the _status
@@ -31,10 +30,10 @@ public class Box {
 		Objects.requireNonNull(status);
 
 		switch (status) {
-		case '|' -> _status = Constants.EMPTY;
-		case '0' -> _status = Constants.BUTTON;
-		case 'x' -> _status = Constants.PATCH;
-		default -> throw new IllegalArgumentException("status must be equal to |, 0 or x");
+			case '|' -> _status = Constants.EMPTY;
+			case '0' -> _status = Constants.BUTTON;
+			case 'x' -> _status = Constants.PATCH;
+			default -> throw new IllegalArgumentException("status must be equal to |, 0 or x");
 		}
 	}
 	
@@ -55,6 +54,10 @@ public class Box {
 	 */
 	public Constants getStatus() {
 		return _status;	
+	}
+	
+	public boolean hasPlayer() {
+		return _players.size() > 0;
 	}
 
 	/**
@@ -122,22 +125,21 @@ public class Box {
 	 * @param x
 	 * @param y
 	 */
-	public void draw(ApplicationContext context, float x, float y) {
-    	context.renderFrame(graphics -> {
-    		switch(_status) {
-			case BUTTON : 
-				graphics.setColor(Color.CYAN);
-				Ellipse2D.Float ellipse = new Ellipse2D.Float(x - 5, y - 5, 10, 10);
-				graphics.fill(ellipse);
-				return;
-			case PATCH :
-				graphics.setColor(Color.MAGENTA);
-				var rectangle = new Rectangle2D.Float(x-5, y-5, 10, 10);
-				graphics.fill(rectangle);
-			default : return;
-			
-    		}
-	      });
+	@Override
+	protected void onDraw(Graphics2D graphics) {
+		switch(_status) {
+		case BUTTON : 
+			graphics.setColor(Color.CYAN);
+			Ellipse2D.Float ellipse = new Ellipse2D.Float(topLeftX - 5, topLeftY - 5, width, height);
+			graphics.fill(ellipse);
+			return;
+		case PATCH :
+			graphics.setColor(Color.MAGENTA);
+			var rectangle = new Rectangle2D.Float(topLeftX - 5, topLeftY - 5, width, height);
+			graphics.fill(rectangle);
+		default : return;
+		
+		}
 	}
 
 	@Override

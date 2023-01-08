@@ -2,9 +2,10 @@ package fr.uge.patchwork;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
+import java.util.List;
 
-import fr.umlv.zen5.ApplicationContext;
 
 /**
  * This class stores the information about a quilt board. it also handles adding
@@ -13,7 +14,7 @@ import fr.umlv.zen5.ApplicationContext;
  * @author COUSSON Sophie
  * @author FRAIZE Victor
  */
-public class QuiltBoard {
+public class QuiltBoard extends GraphicalObject {
 	private boolean[][] _grid;
 	private int _buttons;
 	private final int _size;
@@ -125,36 +126,72 @@ public class QuiltBoard {
 	}
 	
 	/**
+	 * The function return 3 informations where to start the drawing 
+	 * and the size of the square that contains it
+	 * @param bottomX
+	 * @param topY
+	 * @param bottomY
+	 * @return the List of those informations
+	 */
+	private List<Float> getInfos(float bottomX, float topY, float bottomY) {
+		float tY = topY + 50; // to have the smallest space on the top and bottom
+		float size = bottomY - 50 - (tY);
+		float tX = (bottomX - size) / 2;
+		return List.of(tX, size, tY);
+	}
+	
+	/**
 	 * The function draws the grid on the screen
 	 * @param context
 	 * @param topX
 	 * @param topY
 	 * @param size
 	 */
-	public void draw(ApplicationContext context, float topX, float topY, float size) {
-		var grid = new Rectangle2D.Float(topX, topY, size, size);
-		float cubeSize = size / _size; 
-		context.renderFrame(graphics -> {
-			String s = "Recovered buttons : ";
-			int x = 0, y = 0;
-	        for (int i = 0; i < _size; i++) {
-				for (int j = 0; j < _size; j++) {
-					var cube = new Rectangle2D.Float(topX + i*cubeSize , topY + j*cubeSize, cubeSize, cubeSize);
-			        if (_grid[i][j]) {
-			        	graphics.setColor(Color.PINK);
-			        	graphics.fill(cube);
-			        } else {
-			        	graphics.setColor(Color.BLACK);
-				        graphics.draw(cube);
-			        }
-			        y = j;
-				}
-				x = i;
+	@Override
+	protected void onDraw(Graphics2D graphics) {
+		var infos = getInfos(topLeftX + width, topLeftY, topLeftY + height);
+		var grid = new Rectangle2D.Float(infos.get(0), infos.get(2), infos.get(1), infos.get(1));
+		float cubeSize = infos.get(1) / _size; 
+		String s = "Recovered buttons : ";
+		int x = 0, y = 0;
+        for (int i = 0; i < _size; i++) {
+			for (int j = 0; j < _size; j++) {
+				var cube = new Rectangle2D.Float(infos.get(0) + i*cubeSize , infos.get(2) + j*cubeSize, cubeSize, cubeSize);
+		        if (_grid[i][j]) {
+		        	graphics.setColor(Color.PINK);
+		        	graphics.fill(cube);
+		        } else {
+		        	graphics.setColor(Color.BLACK);
+			        graphics.draw(cube);
+		        }
+		        y = j;
 			}
-	        graphics.setStroke(new BasicStroke(5));
-	        graphics.draw(grid);
-	        graphics.drawString(s + _buttons, topX + x*cubeSize + s.length(), topY + (y+1)*cubeSize + cubeSize/3);
-	      });
+			x = i;
+		}
+        graphics.setStroke(new BasicStroke(5));
+        graphics.draw(grid);
+        graphics.drawString(s + _buttons, infos.get(0) + x*cubeSize + s.length(), infos.get(1) + (y+1)*cubeSize + cubeSize/3);
+	}
+	
+	public void drawPiece(Graphics2D graphics, Piece piece, int x, int y) {
+		var infos = getInfos(topLeftX + width, topLeftY, topLeftY + height);
+		float cubeSize = infos.get(1) / _size; 
+		piece.SetGraphicalProperties(infos.get(0) + x * cubeSize, infos.get(2) + y*cubeSize, cubeSize);
+		piece.draw(graphics);
+	}
+	
+	/**
+	 * The function return true if the coordinates x, y are inside the quiltboard
+	 * @param x
+	 * @param y
+	 * @param topY
+	 * @param bottomX
+	 * @param bottomY
+	 * @return
+	 */
+	public boolean inQuiltBoard(float x, float y, float topY, float bottomX, float bottomY) {
+		var infos = getInfos(bottomX, topY, bottomY);
+		return x > infos.get(0) && y > infos.get(2) && x < infos.get(0) + infos.get(1) && y < infos.get(2) + infos.get(1);
 	}
 
 	/**

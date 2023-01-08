@@ -3,11 +3,10 @@ package fr.uge.patchwork;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import fr.umlv.zen5.ApplicationContext;
-
+import java.util.stream.IntStream;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,7 +19,7 @@ import java.nio.file.Path;
  * @author COUSSON Sophie
  * @author FRAIZE Victor
  */
-public class TimeBoard {
+public class TimeBoard extends GraphicalObject {
 	private final ArrayList<Box> _board = new ArrayList<Box>();
 
 	/**
@@ -182,13 +181,11 @@ public class TimeBoard {
 	 * @param x
 	 * @param y
 	 */
-	private void drawLine(ApplicationContext context, float x, float y) {
-		context.renderFrame(graphics -> {
-			var line = new Line2D.Float(x, y, x, y + Constants.BOX_SIZE.getValue());
-			graphics.setStroke(new BasicStroke(5));
-			graphics.setColor(Color.BLACK);
-			graphics.draw(line);
-		});
+	private void drawLine(Graphics2D graphics, float x, float y) {
+		var line = new Line2D.Float(x, y, x, y + Constants.BOX_SIZE.getValue());
+		graphics.setStroke(new BasicStroke(5));
+		graphics.setColor(Color.BLACK);
+		graphics.draw(line);
 	}
 	
 	/**
@@ -197,22 +194,30 @@ public class TimeBoard {
 	 * @param width
 	 * @param posCurrent position of the current player 
 	 */
-	public void draw(ApplicationContext context, float width, int posCurrent) {
+	@Override
+	protected void onDraw(Graphics2D graphics) {
 		int box = Constants.BOX_SIZE.getValue();
 		float boxWidth = width / Constants.WINDOW_SIZE.getValue();
-		int size = getRemainningSize(posCurrent);
+		var firstPlayerIdx = IntStream.range(0,_board.size())
+				.filter(i -> _board.get(i).hasPlayer())
+				.findFirst()
+				.orElse(-1);
+		
+		int size = getRemainningSize(firstPlayerIdx);
 		Line2D line = new Line2D.Float(5, box, width - 5, box);
-		context.renderFrame(graphics -> {
-			graphics.setStroke(new BasicStroke(5));
-    		graphics.setColor(Color.BLACK);
-    		graphics.draw(line);
-	      });
+		graphics.setStroke(new BasicStroke(5));
+		graphics.setColor(Color.BLACK);
+		graphics.draw(line);
 		for (var i = 0; i < size; i++) {
-			drawLine(context, i * boxWidth, 0);
-			if (_board.get(i + posCurrent).getPlayer() != null) {
-				_board.get(i + posCurrent).getPlayer().getPawn().draw(context, i * boxWidth + boxWidth / 2, box/2);
+			drawLine(graphics, i * boxWidth, 0);
+			if (_board.get(i + firstPlayerIdx).hasPlayer()) {
+				var pawn = _board.get(i + firstPlayerIdx).getPlayer().getPawn();
+				pawn.SetGraphicalProperties(i * boxWidth + boxWidth / 2, box/2, 20);
+				pawn.draw(graphics);
 			}
-			_board.get(i+posCurrent).draw(context, i*boxWidth, box/2);
+			_board.get(i+firstPlayerIdx).SetGraphicalProperties(i*boxWidth, box/2, 10);
+			_board.get(i+firstPlayerIdx).draw(graphics);
 		}
 	}
+	
 }

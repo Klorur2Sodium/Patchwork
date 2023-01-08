@@ -1,10 +1,9 @@
 package fr.uge.patchwork;
 
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.util.Objects;
-
-import fr.umlv.zen5.ApplicationContext;
 
 /**
  * This class stores the information about the pawn of a player,
@@ -13,7 +12,7 @@ import fr.umlv.zen5.ApplicationContext;
  * @author COUSSON Sophie
  * @author FRAIZE Victor
  */
-public class Pawn {
+public class Pawn extends GraphicalObject {
     private final Constants _color;
     
     /**
@@ -51,12 +50,10 @@ public class Pawn {
      * @param x
      * @param y
      */
-    public void draw(ApplicationContext context, float x, float y) {
-    	Ellipse2D.Float ellipse = new Ellipse2D.Float(x - 10, y - 10, 20, 20);
-    	context.renderFrame(graphics -> {
-    		graphics.setColor(match());
-	        graphics.fill(ellipse);
-	      });
+    public void onDraw(Graphics2D graphics) {
+    	Ellipse2D.Float ellipse = new Ellipse2D.Float(topLeftX - 10, topLeftY - 10, width, height);
+		graphics.setColor(match());
+        graphics.fill(ellipse);
     }
     
     

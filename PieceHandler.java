@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import fr.umlv.zen5.ApplicationContext;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,12 +20,13 @@ import java.nio.file.Path;
  * @author COUSSON Sophie
  * @author FRAIZE Victor
  */
-public class PieceHandler {
+public class PieceHandler extends GraphicalObject {
 	private static final PieceHandler _instance = new PieceHandler();
 
 	private final ArrayList<Piece> _pieces;
 	private int _piecesDisplayed;
 	private int _posNeutralPawn;
+	private boolean _display;
 	
 	private final static int selectableNumber = 3; 
 
@@ -89,6 +90,14 @@ public class PieceHandler {
 
 		index = getRealIndex(index + _posNeutralPawn);
 		return _pieces.get(index);
+	}
+	
+	public boolean getDisplay() {
+		return _display;
+	}
+	
+	public void setDisplay(boolean value) {
+		_display = value;
 	}
 	
 	/**
@@ -158,13 +167,11 @@ public class PieceHandler {
 	 * @param x
 	 * @param height
 	 */
-	private void drawDelimitation(ApplicationContext context, float x, float height) {
+	private void drawDelimitation(Graphics2D graphics, float x, float height) {
 		var line = new Line2D.Float(x, Constants.BOX_SIZE.getValue(), x, height - 5);
-		context.renderFrame(graphics -> {
 			graphics.setStroke(new BasicStroke(5));
     		graphics.setColor(Color.BLACK);
     		graphics.draw(line);
-	      });
 	}
 	
 	/**
@@ -174,11 +181,13 @@ public class PieceHandler {
 	 * @param width
 	 * @param height
 	 */
-	public void draw(ApplicationContext context, float topX, float width, float height) {
-		float x = topX;
+	@Override
+	protected void onDraw(Graphics2D graphics) {
+		float x = topLeftX;
 		float y = Constants.BOX_SIZE.getValue() + 100;
 		float biggestY = 0;
-		drawDelimitation(context, topX - 10, height);
+		drawDelimitation(graphics, x - 10, height);
+		graphics.setStroke(new BasicStroke(2));
 		for (int i = 0; i < _piecesDisplayed && i < _posNeutralPawn + _pieces.size(); i++) {
 			var index = getRealIndex(i + _posNeutralPawn);
 			var piece = _pieces.get(index);
@@ -186,14 +195,23 @@ public class PieceHandler {
 				return;
 			}
 			if (piece.getXSize() * Constants.PIECE_SQUARE.getValue() + x >= width) {
-				x = topX;
+				x = topLeftX;
 				y += biggestY + 50;
 				biggestY = 0;
 			}
-			piece.draw(context, x, y, Constants.PIECE_SQUARE.getValue());
+			piece.SetGraphicalProperties(x, y, Constants.PIECE_SQUARE.getValue());
+			piece.draw(graphics);
 			x += piece.getXSize() * Constants.PIECE_SQUARE.getValue() + 50;
 			biggestY = (piece.getYSize() * Constants.PIECE_SQUARE.getValue() > biggestY)? piece.getYSize()  * Constants.PIECE_SQUARE.getValue() : biggestY; 
 		}
+	}
+	
+	public void action(Graphics2D graphics, float height, float width, int number) {
+		if (_piecesDisplayed < number) {
+			return;
+		}
+		var index = getRealIndex(number + _posNeutralPawn);
+		_pieces.get(index).drawInformations(graphics, height, width);
 	}
 	
 	/**

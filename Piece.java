@@ -1,10 +1,11 @@
 package fr.uge.patchwork;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Objects;
-
-import fr.umlv.zen5.ApplicationContext;
 
 /**
  * This class stores the information about a piece,
@@ -14,7 +15,7 @@ import fr.umlv.zen5.ApplicationContext;
  * @author COUSSON Sophie
  * @author FRAIZE Victor
  */
-public class Piece {
+public class Piece extends GraphicalObject {
 	private boolean[][] _body; // 1bis
 	private byte _cost; //-128 + 127
 	private byte _buttons;
@@ -275,6 +276,15 @@ public class Piece {
 		return space.toString() + "  ";
 	}
 	
+	@Override
+	public void SetGraphicalProperties(float x, float y, float w, float h) {
+		if(w != h) {
+			// Erreur ou
+			h = w;
+		}
+		super.SetGraphicalProperties(x, y, w, h);
+	}
+	
 	/**
 	 * Returns a string representing the given line in Ascii
 	 * 
@@ -298,26 +308,89 @@ public class Piece {
 
 	/**
 	 * The function draws the piece on the cordinates (x, y)
-	 * @param context
+	 * @param graphics
 	 * @param x
 	 * @param y
 	 */
-	public void draw(ApplicationContext context, float x, float y, float side) {
-		context.renderFrame(graphics -> {
-			graphics.drawString("Cost: " + _cost, x, y-1);
-			
-    		for (var i = 0; i < xSize; i++) {
-    			for (var j = 0; j < ySize; j++) {
-    				if (_body[i][j]) {
-    					var square = new Rectangle2D.Float(x + i*side, y + j*side, side, side);
-    					graphics.setColor(_color);
-        				graphics.fill(square);
-        				graphics.setColor(Color.BLACK);
-        				graphics.draw(square);
-    				}
-    			}
-    		}
-	      });
+	@Override
+	protected void onDraw(Graphics2D graphics) {
+		graphics.drawString("Cost: " + _cost, topLeftX, topLeftY-1);
+		for (var i = 0; i < xSize; i++) {
+			for (var j = 0; j < ySize; j++) {
+				if (_body[i][j]) {
+					var square = new Rectangle2D.Float(topLeftX + i * width, topLeftY + j* width, width, width);
+					graphics.setColor(_color);
+    				graphics.fill(square);
+    				graphics.setColor(Color.BLACK);
+    				graphics.draw(square);
+				}
+			}
+		}
 	}
 
+	/**
+	 * Draws a square containing the piece informations
+	 * @param context
+	 * @param height
+	 * @param width
+	 */
+	public void drawInformations(Graphics2D graphics, float height, float width) {
+		var side = height/3*2;
+		var h = height/6;
+		var w = width/2-side/2;
+		var startWritting = w + side/3*2;
+		float x = w;
+		float y = h;
+		var grid = new Rectangle2D.Float(x, y, side, side);
+		graphics.setColor(Color.LIGHT_GRAY);
+        graphics.fill(grid);
+		graphics.setStroke(new BasicStroke(5));
+		graphics.setColor(Color.BLACK);
+        graphics.draw(grid);
+        
+        graphics.setFont(new Font("default", Font.BOLD, 25));
+        x+= 10; y+= 50;
+        graphics.drawString("Piece informations", x, y);
+        x = startWritting; y = h + side/2;
+        graphics.drawString("Cost : " + _cost, x, y);
+        y+= 50;
+        graphics.drawString("Moves : " + _moves, x, y);
+        y+= 50;
+        graphics.drawString("Buttons : " + _buttons, x, y);
+		var res = Math.min(proportionalSize(true), proportionalSize(false));
+		
+		var xPos = w + 10;
+		var yPos = h + side/3;
+		for (var i = 0; i < xSize; i++) {
+			for (var j = 0; j < ySize; j++) {
+				if (_body[i][j]) {
+					var square = new Rectangle2D.Float(xPos + i * res, yPos + j* res, res, res);
+					graphics.setColor(_color);
+    				graphics.fill(square);
+    				graphics.setColor(Color.BLACK);
+    				graphics.draw(square);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * returns the size of a cube using the reference 100px for 3 cubes
+	 * @param xCoordinate
+	 * @return
+	 */
+	private int proportionalSize(boolean xCoordinate) {
+		int cubeCount = 3;
+		int size = 100;
+		int res;
+		if (xCoordinate) {
+			res = xSize * size / cubeCount;
+		} else {
+			res = ySize * size / cubeCount;
+		}
+		if (res > 100) {
+			return res-100;
+		}
+		return res;
+	}
 }

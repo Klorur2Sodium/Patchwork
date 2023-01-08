@@ -1,10 +1,9 @@
 package fr.uge.patchwork;
 
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.util.Objects;
 import java.util.Scanner;
-
-import fr.umlv.zen5.ApplicationContext;
 
 /**
  * This class stores the information about the Player. It also handles 
@@ -13,7 +12,7 @@ import fr.umlv.zen5.ApplicationContext;
  * @author COUSSON Sophie
  * @author FRAIZE Victor
  */
-public class Player {
+public class Player extends GraphicalObject {
 	private QuiltBoard _quiltBoard;
 	private int _buttonsCount;
 	private final String _name;
@@ -48,6 +47,10 @@ public class Player {
 	 */
 	public String getName() {
 		return _name;
+	}
+	
+	public int getButton() {
+		return _buttonsCount;
 	}
 	
 	/**
@@ -161,6 +164,10 @@ public class Player {
 	 */
 	public void payEvent() {
 		earnButtons(_wage);
+	}
+	
+	public void buy(Piece piece) {
+		
 	}
 
 	/**
@@ -348,20 +355,32 @@ public class Player {
 
 	/**
 	 * The function draws the information of the player 
-	 * @param context
-	 * @param topX
-	 * @param topY
+	 * @param graphics
 	 */
-	public void draw(ApplicationContext context, float topX, float topY) {
-		context.renderFrame(graphics -> {
-			graphics.drawString(_name, topX, topY);
-			graphics.drawString("You still have " + _buttonsCount + " buttons", topX, topY+15);
+	@Override
+	protected void onDraw(Graphics2D graphics) {
+			var text = "SPECIAL TILE";
+			graphics.drawString(_name, topLeftX, topLeftY);
+			graphics.drawString("You still have " + _buttonsCount + " buttons", topLeftX, topLeftY+15);
 			if (_specialTile) {
 				graphics.setColor(Color.RED);
-				graphics.drawString("SPECIAL TILE", 500, topY+15);
+				graphics.drawString(text, (topLeftX + width)/2 - (text.length()/2), topLeftY+15);
 			}
-	      });
-		_quiltBoard.draw(context, 200, 200, 500);
+		_quiltBoard.SetGraphicalProperties(0, topLeftY, width, height);
+		_quiltBoard.draw(graphics);
+	}
+	
+	/**
+	 * the function return true if the x, y coordinates are on the quiltBoard false otherwise
+	 * @param x
+	 * @param y
+	 * @param topY
+	 * @param bottomX
+	 * @param bottomY
+	 * @return
+	 */
+	public boolean inQuiltBoard(float x, float y, float topY, float bottomX, float bottomY) {
+		return _quiltBoard.inQuiltBoard(x, y, topY, bottomX, bottomY);
 	}
 	
 	@Override

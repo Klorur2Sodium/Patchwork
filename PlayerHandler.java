@@ -1,8 +1,9 @@
 package fr.uge.patchwork;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.geom.Rectangle2D;
 import java.util.Objects;
-
-import fr.umlv.zen5.ApplicationContext;
 
 /**
  * The class stores an array of players and handles the current player, 
@@ -11,7 +12,7 @@ import fr.umlv.zen5.ApplicationContext;
  * @author COUSSON Sophie
  * @author FRAIZE Victor
  */
-public class PlayerHandler {
+public class PlayerHandler extends GraphicalObject {
 	private final Player[] _players;
 	private int _current;
 	private boolean _specialTilesRemaining;
@@ -127,8 +128,35 @@ public class PlayerHandler {
 	 * @param topX
 	 * @param topY
 	 */
-	public void draw(ApplicationContext context, float topX, float topY) {
-		_players[_current].draw(context, topX, topY);
+	@Override
+	protected void onDraw(Graphics2D graphics) {
+		_players[_current].SetGraphicalProperties(topLeftX, topLeftY, width, height);
+		_players[_current].draw(graphics);
+	}
+	
+	public void cleanSpace(Graphics2D graphics) {
+		graphics.setColor(Color.LIGHT_GRAY);
+		var rect = new Rectangle2D.Float(0, Constants.BOX_SIZE.getValue()+10, width-10, height);
+		graphics.fill(rect);
+	}
+	
+	/**
+	 * 
+	 * 
+	 * 
+	 * 
+	 * @param x
+	 * @param y
+	 * @param topY
+	 * @param bottomX
+	 * @param bottomY
+	 */
+	public void action(float x, float y, float topY, float bottomX, float bottomY) {
+		if (_players[_current].inQuiltBoard(x, y, topY, bottomX, bottomY)) {
+			System.out.println("OK QUILT");
+		} else {
+			System.out.println("OUT");
+		}
 	}
 	
 }

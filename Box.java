@@ -59,6 +59,10 @@ public class Box extends GraphicalObject {
 	public boolean hasPlayer() {
 		return _players.size() > 0;
 	}
+	
+	public void emptyStatus() {
+		_status =  Constants.EMPTY;
+	}
 
 	/**
 	 * The method adds a player to the List of Players

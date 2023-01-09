@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Objects;
+import java.awt.Font;
 
 /**
  * The class stores an array of players and handles the current player, 
@@ -157,6 +158,18 @@ public class PlayerHandler extends GraphicalObject {
 		} else {
 			System.out.println("OUT");
 		}
+	}
+	
+	
+	public void drawVictory(Graphics2D graphics, float wHeight, float wWidth) {
+		var winner = getVictoriousPlayer();
+		var text = "Player " + winner.getName() + " you won this game with " + winner.getScore();
+		graphics.setColor(Color.LIGHT_GRAY);
+		var rect = new Rectangle2D.Float(0, 0, wWidth, wHeight);
+		graphics.fill(rect);
+		graphics.setColor(Color.BLACK);
+		graphics.setFont(new Font("default", Font.BOLD,50));
+		graphics.drawString(text, wWidth/2 - graphics.getFontMetrics().stringWidth(text)/2, wHeight/2);
 	}
 	
 }

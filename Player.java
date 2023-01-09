@@ -158,6 +158,16 @@ public class Player extends GraphicalObject {
 		earnButtons(nbMoves);
 		move(scanner, nbMoves, timeBoard, version);
 	}
+	
+	public Piece skipTurn(int nbMoves, TimeBoard timeBoard) {
+		Objects.requireNonNull(timeBoard);
+		if (nbMoves < 0) {
+			throw new IllegalArgumentException("the player can't move back");
+		}
+
+		earnButtons(nbMoves);
+		return move(nbMoves, timeBoard);
+	}
 
 	/**
 	 * Pays the player with its wage.
@@ -166,8 +176,10 @@ public class Player extends GraphicalObject {
 		earnButtons(_wage);
 	}
 	
-	public void buy(Piece piece) {
-		
+	public Piece buy(Piece piece, TimeBoard timeBoard) {
+		_buttonsCount -= piece.getCost();
+		_wage += piece.getButtons();
+		return move( piece.getMoves(), timeBoard);
 	}
 
 	/**
@@ -217,6 +229,30 @@ public class Player extends GraphicalObject {
 			currentBox.boxEvent(this, scanner, version);
 		}
 		timeBoard.getBoard().get(_position).add(this);
+	}
+	
+	private Piece move(int nbMoves, TimeBoard timeBoard) {
+		Box currentBox;
+		Piece patch = null;
+		timeBoard.getBoard().get(_position).remove(this);
+		for (int i = 0; i < nbMoves && _position < timeBoard.getBoard().size() - 1; i++) {
+			_position++;
+			currentBox = timeBoard.getBoard().get(_position);
+			switch (currentBox.getStatus()) {
+			case BUTTON:
+				payEvent();
+				break;
+			case PATCH:
+				patch = new Piece();
+				patch.parseLine("1:0:0:0");
+				currentBox.emptyStatus();
+				break;
+			default:
+				break;
+			}
+		}
+		timeBoard.getBoard().get(_position).add(this);
+		return patch;
 	}
 
 	// Methods - Ascii version

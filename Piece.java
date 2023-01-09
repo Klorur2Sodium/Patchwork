@@ -314,7 +314,6 @@ public class Piece extends GraphicalObject {
 	 */
 	@Override
 	protected void onDraw(Graphics2D graphics) {
-		graphics.drawString("Cost: " + _cost, topLeftX, topLeftY-1);
 		for (var i = 0; i < xSize; i++) {
 			for (var j = 0; j < ySize; j++) {
 				if (_body[i][j]) {

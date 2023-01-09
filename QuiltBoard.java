@@ -160,8 +160,8 @@ public class QuiltBoard extends GraphicalObject {
 		        if (_grid[i][j]) {
 		        	graphics.setColor(Color.PINK);
 		        	graphics.fill(cube);
-		        } else {
 		        	graphics.setColor(Color.BLACK);
+		        } else {
 			        graphics.draw(cube);
 		        }
 		        y = j;

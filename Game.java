@@ -12,7 +12,6 @@ import fr.umlv.zen5.ApplicationContext;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 /**
@@ -104,35 +103,40 @@ public class Game {
 		      }
 			Action action = event.getAction();
 			if (action == Action.KEY_PRESSED) {
-				if (event.getKey().equals(KeyboardKey.LEFT) && x >= 0) {
+				if (event.getKey().equals(KeyboardKey.LEFT) && x > 0) {
 					x--;
-				} else if (event.getKey().equals(KeyboardKey.RIGHT) && x < Constants.GRID_SIZE.getValue()) {
+				} else if (event.getKey().equals(KeyboardKey.RIGHT) && (x + piece.getXSize()) < Constants.GRID_SIZE.getValue()) {
 					x++;
 				}
 				if (event.getKey().equals(KeyboardKey.UP) && y > 0) {
 					y--;
-				} else if (event.getKey().equals(KeyboardKey.DOWN) && y < Constants.GRID_SIZE.getValue()) {
+				} else if (event.getKey().equals(KeyboardKey.DOWN) && (y + piece.getYSize()) < Constants.GRID_SIZE.getValue()) {
 					y++;
 				}
 				if (event.getKey().equals(KeyboardKey.F)) {
-					System.out.println("okok");
 					piece = piece.flip();
 				} else if (event.getKey().equals(KeyboardKey.R)) {
 					piece = piece.reverse();
 				} else if (event.getKey().equals(KeyboardKey.Q)) {
 					return;
 				} else if (event.getKey().equals(KeyboardKey.S)) {
-					if (player.getQuiltboard().addPiece(piece, x - 1, y - 1)) {
-						//buy
+					if (player.addPieceToGrid(piece, y, x)) {
+						piece = player.buy(piece, _timeBoard);
+						_pieceHandler.remove(temp);
+						if (piece != null) {
+							continue;
+						}
 						return;
 					}
 				}
+				final Piece moved = piece;
+				final int xx = x;
+				final int yy = y;
 				context.renderFrame(graphics -> {
 					_playerHandler.cleanSpace(graphics);
 					_menu.pieceMenu(graphics);
 					_playerHandler.draw(graphics);
-					temp.draw(graphics);
-					player.getQuiltboard().drawPiece(graphics, temp, tx, ty);
+					player.getQuiltboard().drawPiece(graphics, moved, xx, yy);
 				});
 			}
 		}
@@ -151,6 +155,7 @@ public class Game {
 		    
 		      while (!_playerHandler.checkEndOfGame(_timeBoard.getSize())) {
 		    	  final int toto = pieceNumber;
+		    	  boolean played = false;
 		    	  context.renderFrame(graphics -> draw(graphics, height, width, toto, pieceHandlerPos, quiltBoardPos));
 		    	  Event event = context.pollOrWaitEvent(10);
 		    	  if (event == null) {  // no event
@@ -160,9 +165,14 @@ public class Game {
 		    	  if (action == Action.KEY_PRESSED) {
 		    		  if(event.getModifiers().contains(Event.Modifier.CTRL)) {
 		    			  if(event.getKey().equals(KeyboardKey.S) && pieceNumber >= 0) { // trying to buy a piece
+		    				  // need to add a message if the player is trying to buy a piece > 3
 		    				  var piece = _pieceHandler.getPiece(pieceNumber);
 		    				  if (_playerHandler.getCurrent().canBuyPiece(piece)) {
 		    					  placingPhase(_playerHandler.getCurrent(), piece, context);
+		    					  _pieceHandler.moveNeutralPawn(pieceNumber);
+		    					  _pieceHandler.setDisplay(false);
+		    					  pieceNumber = 0;
+		    					  played = true;
 		    				  }
 		    			  } else if (event.getKey().equals(KeyboardKey.P)) { // displays the pieceHandler
 		    				  _pieceHandler.setDisplay(true);
@@ -181,10 +191,20 @@ public class Game {
 		    		  } else if (event.getKey().equals(KeyboardKey.S)){
 		    			  _pieceHandler.setDisplay(false);
 		    		  } else if (event.getKey().equals(KeyboardKey.SPACE)) {
-		    			  
+		    			  Piece patch = null;
+		    			  patch = _playerHandler.getCurrent().skipTurn(_playerHandler.distanceBetweenPlayers() + 1, _timeBoard);
+		    			  if (patch != null) {
+		    				  placingPhase(_playerHandler.getCurrent(), patch, context);
+		    			  }
+		    			  played = true;
+		    		  }
+		    		  if (played) {
+		    			  _playerHandler.updateSpecialTile();
+			    		  _playerHandler.updateCurrentPlayer();
 		    		  }
 		    	  }
 		      }
+		      context.renderFrame(graphics -> _playerHandler.drawVictory(graphics, height, width));
 		});
 	}
 			

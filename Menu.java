@@ -55,6 +55,8 @@ public class Menu extends GraphicalObject {
 		displayMenuEntry(graphics, x, y, "Quit", "Q");
 		y += yPadding;
 		displayMenuEntry(graphics, x, y, "Save", "S");
+		y += yPadding;
+		displayMenuEntry(graphics, x, y, "Move", "Arrows");
 	}
 	
 	private int getStringWidth(Graphics2D graphics, String text) {

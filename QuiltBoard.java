@@ -124,29 +124,7 @@ public class QuiltBoard extends GraphicalObject {
 		builder.append("  +------------------+\n");
 		System.out.println(builder.toString());
 	}
-	
-	/**
-	 * The function return 3 informations where to start the drawing 
-	 * and the size of the square that contains it
-	 * @param bottomX
-	 * @param topY
-	 * @param bottomY
-	 * @return the List of those informations
-	 */
-	private List<Float> getInfos(float bottomX, float topY, float bottomY) {
-		float tY = topY + 50; // to have the smallest space on the top and bottom
-		float size = bottomY - 50 - (tY);
-		float tX = (bottomX - size) / 2;
-		return List.of(tX, size, tY);
-	}
-	
-	/**
-	 * The function draws the grid on the screen
-	 * @param context
-	 * @param topX
-	 * @param topY
-	 * @param size
-	 */
+		
 	@Override
 	protected void onDraw(Graphics2D graphics) {
 		var infos = getInfos(topLeftX + width, topLeftY, topLeftY + height);
@@ -156,14 +134,8 @@ public class QuiltBoard extends GraphicalObject {
 		int x = 0, y = 0;
         for (int i = 0; i < _size; i++) {
 			for (int j = 0; j < _size; j++) {
-				var cube = new Rectangle2D.Float(infos.get(0) + i*cubeSize , infos.get(2) + j*cubeSize, cubeSize, cubeSize);
-		        if (_grid[i][j]) {
-		        	graphics.setColor(Color.PINK);
-		        	graphics.fill(cube);
-		        	graphics.setColor(Color.BLACK);
-		        } else {
-			        graphics.draw(cube);
-		        }
+				var cube = new Rectangle2D.Float(infos.get(0) + j*cubeSize , infos.get(2) + i*cubeSize, cubeSize, cubeSize);
+		        drawPieceCube(graphics, i, j ,cube);
 		        y = j;
 			}
 			x = i;
@@ -173,6 +145,13 @@ public class QuiltBoard extends GraphicalObject {
         graphics.drawString(s + _buttons, infos.get(0) + x*cubeSize + s.length(), infos.get(1) + (y+1)*cubeSize + cubeSize/3);
 	}
 	
+	/**
+	 * The function draws a piece on the QuiltBoard on the (x, y) coordinates
+	 * @param graphics 
+	 * @param piece the piece to draw
+	 * @param x 
+	 * @param y
+	 */
 	public void drawPiece(Graphics2D graphics, Piece piece, int x, int y) {
 		var infos = getInfos(topLeftX + width, topLeftY, topLeftY + height);
 		float cubeSize = infos.get(1) / _size; 
@@ -180,20 +159,8 @@ public class QuiltBoard extends GraphicalObject {
 		piece.draw(graphics);
 	}
 	
-	/**
-	 * The function return true if the coordinates x, y are inside the quiltboard
-	 * @param x
-	 * @param y
-	 * @param topY
-	 * @param bottomX
-	 * @param bottomY
-	 * @return
-	 */
-	public boolean inQuiltBoard(float x, float y, float topY, float bottomX, float bottomY) {
-		var infos = getInfos(bottomX, topY, bottomY);
-		return x > infos.get(0) && y > infos.get(2) && x < infos.get(0) + infos.get(1) && y < infos.get(2) + infos.get(1);
-	}
 
+	
 	/**
 	 * Checks if the quilt board possesses a seven by seven square
 	 * completely filled 
@@ -220,6 +187,38 @@ public class QuiltBoard extends GraphicalObject {
 	}
 
 	/**
+	 * The function return 3 informations where to start the drawing 
+	 * and the size of the square that contains it
+	 * @param bottomX
+	 * @param topY
+	 * @param bottomY
+	 * @return the List of those informations
+	 */
+	private List<Float> getInfos(float bottomX, float topY, float bottomY) {
+		float tY = topY + 50; // to have the smallest space on the top and bottom
+		float size = bottomY - 50 - (tY);
+		float tX = (bottomX - size) / 2;
+		return List.of(tX, size, tY);
+	}
+	
+	/**
+	 * The function draws a pink cube on the quiltBoard or/and just a square
+	 * at the (i, j) coordinates
+	 * @param graphics
+	 * @param i
+	 * @param j
+	 * @param cube the representation of the cubre
+	 */
+	private void drawPieceCube(Graphics2D graphics, int i, int j, Rectangle2D cube) {
+		if (_grid[j][i]) {
+        	graphics.setColor(Color.PINK);
+        	graphics.fill(cube);
+        	graphics.setColor(Color.BLACK);
+        }
+        graphics.draw(cube);
+	}
+	
+	/**
 	 * Checks if a seven by seven square space is completely filled,
 	 * starting at the coordinates (lig,col).
 	 * 
@@ -239,6 +238,7 @@ public class QuiltBoard extends GraphicalObject {
 		return true;
 	}
 
+	
 	/**
 	 * Adds the given number of buttons to the total number of buttons on the
 	 * grid.
@@ -252,6 +252,7 @@ public class QuiltBoard extends GraphicalObject {
 		_buttons += nbButtons;
 	}
 
+	
 	/**
 	 * Checks if the piece is placeable at the (x,y) coordinates.
 	 * 
@@ -264,7 +265,6 @@ public class QuiltBoard extends GraphicalObject {
 		if (!piece.fitArea(x, y, _size)) {
 			return false;
 		}
-
 		for (var i = 0; i < piece.getYSize(); i++) {
 			for (var j = 0; j < piece.getXSize(); j++) {
 				if (_grid[i + y][j + x] && piece.getBodyValue(i, j)) {

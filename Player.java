@@ -49,6 +49,10 @@ public class Player extends GraphicalObject {
 		return _name;
 	}
 	
+	/**
+	 * returns the number of buttons the player owns
+	 * @return the buttonsCount
+	 */
 	public int getButton() {
 		return _buttonsCount;
 	}
@@ -176,10 +180,16 @@ public class Player extends GraphicalObject {
 		earnButtons(_wage);
 	}
 	
-	public Piece buy(Piece piece, TimeBoard timeBoard) {
+	/**
+	 * The function buys a piece and and moves the player
+	 * @param piece the piece recovered
+	 * @param timeBoard the game's board
+	 * @return a null or a patch waiting to be placed 
+	 */
+	public Piece recoverPiece(Piece piece, TimeBoard timeBoard) {
 		_buttonsCount -= piece.getCost();
 		_wage += piece.getButtons();
-		return move( piece.getMoves(), timeBoard);
+		return move(piece.getMoves(), timeBoard);
 	}
 
 	/**
@@ -211,6 +221,19 @@ public class Player extends GraphicalObject {
 		move(scanner, piece.getMoves(), timeBoard, version);
 	}
 
+	@Override
+	protected void onDraw(Graphics2D graphics) {
+			var text = "SPECIAL TILE";
+			graphics.drawString(_name, topLeftX, topLeftY);
+			graphics.drawString("You still have " + _buttonsCount + " buttons", topLeftX, topLeftY+15);
+			if (_specialTile) {
+				graphics.setColor(Color.RED);
+				graphics.drawString(text, (topLeftX + width)/2 - (text.length()/2), topLeftY+15);
+			}
+		_quiltBoard.SetGraphicalProperties(0, topLeftY, width, height);
+		_quiltBoard.draw(graphics);
+	}
+	
 	/**
 	 * Handles the movements of a player and especially triggers all
 	 * the event that the player encounters. 
@@ -231,6 +254,32 @@ public class Player extends GraphicalObject {
 		timeBoard.getBoard().get(_position).add(this);
 	}
 	
+	/**
+	 * the function return a patch if the player is walking on one
+	 * @param currentBox
+	 * @return
+	 */
+	private Piece updatePatch(Box currentBox) {
+		switch (currentBox.getStatus()) {
+		case BUTTON:
+			payEvent();
+			return null;
+		case PATCH:
+			var patch = new Piece();
+			patch.parseLine("1:0:0:0");
+			currentBox.emptyStatus();
+			return patch;
+		default:
+			return null;
+		}
+	}
+	
+	/**
+	 * The function moves the player
+	 * @param nbMoves indicate the number of moves
+	 * @param timeBoard 
+	 * @return a patch if the player walked in one
+	 */
 	private Piece move(int nbMoves, TimeBoard timeBoard) {
 		Box currentBox;
 		Piece patch = null;
@@ -238,18 +287,7 @@ public class Player extends GraphicalObject {
 		for (int i = 0; i < nbMoves && _position < timeBoard.getBoard().size() - 1; i++) {
 			_position++;
 			currentBox = timeBoard.getBoard().get(_position);
-			switch (currentBox.getStatus()) {
-			case BUTTON:
-				payEvent();
-				break;
-			case PATCH:
-				patch = new Piece();
-				patch.parseLine("1:0:0:0");
-				currentBox.emptyStatus();
-				break;
-			default:
-				break;
-			}
+			patch = updatePatch(currentBox);
 		}
 		timeBoard.getBoard().get(_position).add(this);
 		return patch;
@@ -387,36 +425,6 @@ public class Player extends GraphicalObject {
 	 */
 	public String display() {
 		return _pawn.toString();
-	}
-
-	/**
-	 * The function draws the information of the player 
-	 * @param graphics
-	 */
-	@Override
-	protected void onDraw(Graphics2D graphics) {
-			var text = "SPECIAL TILE";
-			graphics.drawString(_name, topLeftX, topLeftY);
-			graphics.drawString("You still have " + _buttonsCount + " buttons", topLeftX, topLeftY+15);
-			if (_specialTile) {
-				graphics.setColor(Color.RED);
-				graphics.drawString(text, (topLeftX + width)/2 - (text.length()/2), topLeftY+15);
-			}
-		_quiltBoard.SetGraphicalProperties(0, topLeftY, width, height);
-		_quiltBoard.draw(graphics);
-	}
-	
-	/**
-	 * the function return true if the x, y coordinates are on the quiltBoard false otherwise
-	 * @param x
-	 * @param y
-	 * @param topY
-	 * @param bottomX
-	 * @param bottomY
-	 * @return
-	 */
-	public boolean inQuiltBoard(float x, float y, float topY, float bottomX, float bottomY) {
-		return _quiltBoard.inQuiltBoard(x, y, topY, bottomX, bottomY);
 	}
 	
 	@Override

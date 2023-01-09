@@ -56,10 +56,17 @@ public class Box extends GraphicalObject {
 		return _status;	
 	}
 	
+	/**
+	 * return a boolean which indicates that there is at least one player on the box
+	 * @return boolean
+	 */
 	public boolean hasPlayer() {
 		return _players.size() > 0;
 	}
 	
+	/**
+	 * the function empty status
+	 */
 	public void emptyStatus() {
 		_status =  Constants.EMPTY;
 	}

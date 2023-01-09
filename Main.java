@@ -16,7 +16,6 @@ public class Main {
 			.addPlayers()
 			.build();
 		
-		//game.playingPhase(new Scanner(System.in));
-		game.play();
+		game.launch();
 	}
 }

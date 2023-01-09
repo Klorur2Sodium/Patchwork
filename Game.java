@@ -48,6 +48,22 @@ public class Game {
 		_chosenVersion = version;
 		_menu = new Menu();
 	}
+	
+	public void launch() {
+		switch(_chosenVersion) {
+			case PHASE1 : 
+				play(new Scanner(System.in));
+				return;
+			case PHASE2 : 
+				play(new Scanner(System.in));
+				return;
+			case PHASE3 : 
+				play();
+				return;
+			default:
+			return;
+		}
+	}
 
 	/**
 	 * Main loop of the game, contains all the part of a turn and displays all the
@@ -84,23 +100,23 @@ public class Game {
 		_playerHandler.displayWinner();
 	}
 	
+
+	
+	/**
+	 * The function allows the player to place the piece he selected on his quiltBoard
+	 * @param player the player that is placing the piece
+	 * @param piece the piece placed 
+	 * @param context the context were to draw
+	 */
 	public void placingPhase(Player player, Piece piece, ApplicationContext context) {
 		int x = 0, y = 0;
-		final int tx = x;
-		final int ty = y;
-		final Piece temp = piece;
-		context.renderFrame(graphics -> {
-			_playerHandler.cleanSpace(graphics);
-			_menu.pieceMenu(graphics);
-			_playerHandler.draw(graphics);
-			temp.draw(graphics);
-			player.getQuiltboard().drawPiece(graphics, temp, tx, ty);
-		});
+		Piece initial = piece;
+		drawPlacingPhase(context, piece, player, x, y, true);
 		while(true) {
 			Event event = context.pollOrWaitEvent(10);
 			if (event == null) {  // no event
 		          continue;
-		      }
+		    }
 			Action action = event.getAction();
 			if (action == Action.KEY_PRESSED) {
 				if (event.getKey().equals(KeyboardKey.LEFT) && x > 0) {
@@ -115,33 +131,33 @@ public class Game {
 				}
 				if (event.getKey().equals(KeyboardKey.F)) {
 					piece = piece.flip();
+					x = xValueAfterFlip(piece, x);
+					y = yValueAfterFlip(piece, y);
 				} else if (event.getKey().equals(KeyboardKey.R)) {
 					piece = piece.reverse();
 				} else if (event.getKey().equals(KeyboardKey.Q)) {
 					return;
 				} else if (event.getKey().equals(KeyboardKey.S)) {
 					if (player.addPieceToGrid(piece, y, x)) {
-						piece = player.buy(piece, _timeBoard);
-						_pieceHandler.remove(temp);
+						piece = player.recoverPiece(piece, _timeBoard);
+						_pieceHandler.remove(initial);
 						if (piece != null) {
 							continue;
 						}
 						return;
 					}
 				}
-				final Piece moved = piece;
-				final int xx = x;
-				final int yy = y;
-				context.renderFrame(graphics -> {
-					_playerHandler.cleanSpace(graphics);
-					_menu.pieceMenu(graphics);
-					_playerHandler.draw(graphics);
-					player.getQuiltboard().drawPiece(graphics, moved, xx, yy);
-				});
+				drawPlacingPhase(context, piece, player, x, y, false);
 			}
 		}
 	}
 
+	/**
+	 * Main loop of the game, contains all the part of a turn and displays all the
+	 * required information that the player must know to play the game.
+	 * 
+	 * used for the graphic version
+	 */
 	public void play() {
 		Application.run(Color.LIGHT_GRAY, context -> {
 			ScreenInfo screenInfo = context.getScreenInfo();
@@ -167,7 +183,7 @@ public class Game {
 		    			  if(event.getKey().equals(KeyboardKey.S) && pieceNumber >= 0) { // trying to buy a piece
 		    				  // need to add a message if the player is trying to buy a piece > 3
 		    				  var piece = _pieceHandler.getPiece(pieceNumber);
-		    				  if (_playerHandler.getCurrent().canBuyPiece(piece)) {
+		    				  if (_playerHandler.getCurrent().canBuyPiece(piece) && pieceNumber < 3) {
 		    					  placingPhase(_playerHandler.getCurrent(), piece, context);
 		    					  _pieceHandler.moveNeutralPawn(pieceNumber);
 		    					  _pieceHandler.setDisplay(false);
@@ -207,7 +223,16 @@ public class Game {
 		      context.renderFrame(graphics -> _playerHandler.drawVictory(graphics, height, width));
 		});
 	}
-			
+		
+	/**
+	 * The function draws on the graphics the game's element
+	 * @param graphics 
+	 * @param height window height
+	 * @param width window width
+	 * @param pieceNumber the number of the piece displayed
+	 * @param pieceHandlerPos the starting position of the pieceHandler drawing
+	 * @param quiltBoardPos the starting position of the quiltBoard drawing
+	 */
 	public void draw(Graphics2D graphics, float height, float width, int pieceNumber, float pieceHandlerPos, float quiltBoardPos) {
 		graphics.setColor(Color.LIGHT_GRAY);
         graphics.fill(new  Rectangle2D.Float(0, 0, width, height));
@@ -232,4 +257,51 @@ public class Game {
 		_pieceHandler.display(true);
 		System.out.println("\nlet's go !!\n");
 	}
+
+	/**
+	 * The function returns the value of y after the piece has flip
+	 * @param piece the new piece
+	 * @param y the current value of y
+	 * @return the new value of y
+	 */
+	private int yValueAfterFlip(Piece piece, int y) {
+		if (y + piece.getYSize() >= Constants.GRID_SIZE.getValue()) {
+			return Constants.GRID_SIZE.getValue() - piece.getYSize();
+		}
+		return y;
+	}
+
+	/**
+	 * The function returns the value of x after the piece has flip
+	 * @param piece the new piece
+	 * @param y the current value of x
+	 * @return the new value of x
+	 */
+	private int xValueAfterFlip(Piece piece, int x) {
+		if (x + piece.getXSize() >= Constants.GRID_SIZE.getValue()) {
+			return Constants.GRID_SIZE.getValue() - piece.getXSize();
+		}
+		return x;
+	}
+
+
+	/**
+	 * The function draxs the current state of the player's timeBoard with the menu and the piece selected
+	 * @param context 
+	 * @param piece the piece selected
+	 * @param player the players that plays
+	 * @param x the coordinate on the board
+	 * @param y the coordinate on the board
+	 * @param drawPiece indicate if it's necessary to draw the piece twice
+	 */
+	private void drawPlacingPhase(ApplicationContext context, Piece piece, Player player, int x, int y, boolean drawPiece) {
+		context.renderFrame(graphics -> {
+			_playerHandler.cleanSpace(graphics);
+			_menu.pieceMenu(graphics);
+			_playerHandler.draw(graphics);
+			if (drawPiece) {piece.draw(graphics);}
+			player.getQuiltboard().drawPiece(graphics, piece, x, y);
+		});
+	}
+
 }

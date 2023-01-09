@@ -141,25 +141,6 @@ public class PlayerHandler extends GraphicalObject {
 		graphics.fill(rect);
 	}
 	
-	/**
-	 * 
-	 * 
-	 * 
-	 * 
-	 * @param x
-	 * @param y
-	 * @param topY
-	 * @param bottomX
-	 * @param bottomY
-	 */
-	public void action(float x, float y, float topY, float bottomX, float bottomY) {
-		if (_players[_current].inQuiltBoard(x, y, topY, bottomX, bottomY)) {
-			System.out.println("OK QUILT");
-		} else {
-			System.out.println("OUT");
-		}
-	}
-	
 	
 	public void drawVictory(Graphics2D graphics, float wHeight, float wWidth) {
 		var winner = getVictoriousPlayer();

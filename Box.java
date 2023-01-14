@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class Box extends GraphicalObject {
 	private Constants _status;
-	private final ArrayList<Player> _players = new ArrayList<>();
+	private final ArrayList<IOpponent> _players = new ArrayList<>();
 
 	/**
 	* The method is the constructor it takes a char status and put it on the _status
@@ -42,7 +42,7 @@ public class Box extends GraphicalObject {
 	 * 
 	 * @return a List of Players
 	 */
-	public List<Player> getPlayers() {
+	public List<IOpponent> getPlayers() {
 		return _players;
 	}
 	
@@ -74,11 +74,11 @@ public class Box extends GraphicalObject {
 	/**
 	 * The method adds a player to the List of Players
 	 * 
-	 * @param player to add
+	 * @param iOpponent to add
 	 */
-	public void add(Player player) {
-		Objects.requireNonNull(player);
-		_players.add(player);
+	public void add(IOpponent iOpponent) {
+		Objects.requireNonNull(iOpponent);
+		_players.add(iOpponent);
 	}
 
 	/**
@@ -86,9 +86,9 @@ public class Box extends GraphicalObject {
 	 * 
 	 * @param player to remove
 	 */
-	public void remove(Player player) {
-		Objects.requireNonNull(player);
-		_players.remove(player);
+	public void remove(IOpponent opponent) {
+		Objects.requireNonNull(opponent);
+		_players.remove(opponent);
 	}
 
 	/**
@@ -96,7 +96,7 @@ public class Box extends GraphicalObject {
 	 * 
 	 * @return a Player
 	 */
-	public Player getPlayer() {
+	public IOpponent getPlayer() {
 		int playersSize = _players.size();
 
 		if (playersSize > 0) {

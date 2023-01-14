@@ -65,6 +65,10 @@ public class PieceHandler extends GraphicalObject {
 	public List<Piece> getPieces() {
 		return _pieces;
 	}
+	
+	public int getPosNeutralPawn() {
+		return _posNeutralPawn;
+	}
 
 	/**
 	 * If the given index is greater or equal to the size of the list returns the index
@@ -84,12 +88,21 @@ public class PieceHandler extends GraphicalObject {
 	 * @return the Piece
 	 */
 	public Piece getPiece(int index) {
+		index = getRealIndex(index + _posNeutralPawn);
 		if (index >= _pieces.size()) {
 			throw new ArrayIndexOutOfBoundsException("Index must be strictly smaller than the size of pieces");
 		}
-
-		index = getRealIndex(index + _posNeutralPawn);
 		return _pieces.get(index);
+	}
+	
+	
+	public ArrayList<Piece> getSelectablePieces() {
+		var lst = new ArrayList<Piece>();
+		for (int i = 0; i < 3 && i < _pieces.size(); i++) {
+			lst.add(this.getPiece(_posNeutralPawn + i));
+		}
+		
+		return lst;
 	}
 	
 	public boolean getDisplay() {
@@ -148,6 +161,7 @@ public class PieceHandler extends GraphicalObject {
 		if (nbMove < 0) {
 			throw new IllegalArgumentException("The neutral pawn must only move forward");
 		}
+		
 		_posNeutralPawn = getRealIndex(_posNeutralPawn + nbMove);
 	}
 	

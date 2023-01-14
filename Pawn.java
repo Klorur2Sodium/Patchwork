@@ -25,6 +25,7 @@ public class Pawn extends GraphicalObject {
         switch(color) {
 	        case("Blue") -> _color = Constants.BLUE;
 	        case("Red") -> _color = Constants.RED;
+	        case("DarkGrey") -> _color = Constants.DARK_GREY;
 	        default -> _color = Constants.GREEN;
         }
     }
@@ -38,6 +39,7 @@ public class Pawn extends GraphicalObject {
     	switch(_color) {
     		case BLUE : return Color.BLUE;
     		case RED : return Color.RED;
+    		case DARK_GREY : return Color.DARK_GRAY;
     		case GREEN: return Color.GREEN;
     		default : return Color.LIGHT_GRAY;
     	}
@@ -52,8 +54,8 @@ public class Pawn extends GraphicalObject {
      */
     public void onDraw(Graphics2D graphics) {
     	Ellipse2D.Float ellipse = new Ellipse2D.Float(topLeftX - 10, topLeftY - 10, width, height);
-		graphics.setColor(match());
-        graphics.fill(ellipse);
+    	graphics.setColor(match());
+      graphics.fill(ellipse);
     }
     
     

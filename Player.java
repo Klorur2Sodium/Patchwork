@@ -12,7 +12,7 @@ import java.util.Scanner;
  * @author COUSSON Sophie
  * @author FRAIZE Victor
  */
-public class Player extends GraphicalObject {
+public final class Player extends GraphicalObject implements IOpponent {
 	private QuiltBoard _quiltBoard;
 	private int _buttonsCount;
 	private final String _name;
@@ -178,6 +178,14 @@ public class Player extends GraphicalObject {
 	 */
 	public void payEvent() {
 		earnButtons(_wage);
+	}
+	
+	public boolean updateSpeTile() {
+		if (_quiltBoard.checkSpecialTile()) {
+			addSpecialTile();
+			return true;
+		}
+		return false;
 	}
 	
 	/**
@@ -415,7 +423,7 @@ public class Player extends GraphicalObject {
 				x = -1;
 				y = -1;
 			}
-		} while (!_quiltBoard.addPiece(piece, x - 1, y - 1));
+		} while (!_quiltBoard.addPiece(piece, y - 1, x - 1));
 		_quiltBoard.display();
 	}
 	

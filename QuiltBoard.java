@@ -6,7 +6,6 @@ import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 
-
 /**
  * This class stores the information about a quilt board. it also handles adding
  * a piece to it and displaying the grid.
@@ -36,7 +35,7 @@ public class QuiltBoard extends GraphicalObject {
 	public int getButtons() {
 		return _buttons;
 	}
-	
+
 	/**
 	 * Returns the number of empty square in the grid
 	 * 
@@ -55,23 +54,23 @@ public class QuiltBoard extends GraphicalObject {
 	}
 
 	/**
-	 * Checks if the piece is placeable and then places it at the
-	 * (x,y) coordinates
+	 * Checks if the piece is placeable and then places it at the (x,y) coordinates
 	 * 
 	 * @param piece : the piece you want to place
-	 * @param x : x coordinate
-	 * @param y : y coordinate
+	 * @param x     : x coordinate
+	 * @param y     : y coordinate
 	 * @return boolean representing success of the placement
 	 */
-	public boolean addPiece(Piece piece, int x, int y) {
-		if (x < 0 || y < 0 || !isPlacebale(piece, x, y)) {
+	public boolean addPiece(Piece piece, int y, int x) {
+		if (x < 0 || y < 0 || !isPlacebale(piece, y, x)) {
 			return false;
 		}
 		addButtons(piece.getButtons());
 		for (int i = 0; i < piece.getYSize(); i++) {
 			for (int j = 0; j < piece.getXSize(); j++) {
 				if (piece.getBodyValue(i, j)) {
-					_grid[j + y][i + x] = true;
+					System.out.println("x : " + (x + j) + " y : " + (y + i));
+					_grid[i + y][j + x] = true;
 				}
 			}
 		}
@@ -79,8 +78,7 @@ public class QuiltBoard extends GraphicalObject {
 	}
 
 	/**
-	 * Adds the given piece to the quilt board at
-	 * the first valid coordinates.
+	 * Adds the given piece to the quilt board at the first valid coordinates.
 	 * 
 	 * @param piece : the piece you want to place
 	 */
@@ -93,7 +91,7 @@ public class QuiltBoard extends GraphicalObject {
 			}
 		}
 	}
-	
+
 	/**
 	 * Creates a String that contains every number to the size
 	 * 
@@ -112,7 +110,7 @@ public class QuiltBoard extends GraphicalObject {
 	 */
 	public void display() {
 		var builder = new StringBuilder();
-		builder.append("    " + numberLine() + "\n").append("  +------------------+\n");
+		builder.append("    " + numberLine() + "\n").append("  +-------------------+\n");
 		for (int i = 0; i < _size; i++) {
 			builder.append(i + 1).append(" |");
 
@@ -121,49 +119,48 @@ public class QuiltBoard extends GraphicalObject {
 			}
 			builder.append(" |\n");
 		}
-		builder.append("  +------------------+\n");
+		builder.append("  +-------------------+\n");
 		System.out.println(builder.toString());
 	}
-		
+
 	@Override
 	protected void onDraw(Graphics2D graphics) {
 		var infos = getInfos(topLeftX + width, topLeftY, topLeftY + height);
 		var grid = new Rectangle2D.Float(infos.get(0), infos.get(2), infos.get(1), infos.get(1));
-		float cubeSize = infos.get(1) / _size; 
+		float cubeSize = infos.get(1) / _size;
 		String s = "Recovered buttons : ";
 		int x = 0, y = 0;
-        for (int i = 0; i < _size; i++) {
+		for (int i = 0; i < _size; i++) {
 			for (int j = 0; j < _size; j++) {
-				var cube = new Rectangle2D.Float(infos.get(0) + j*cubeSize , infos.get(2) + i*cubeSize, cubeSize, cubeSize);
-		        drawPieceCube(graphics, i, j ,cube);
-		        y = j;
+				var cube = new Rectangle2D.Float(infos.get(0) + i * cubeSize, infos.get(2) + j * cubeSize, cubeSize, cubeSize);
+				drawPieceCube(graphics, i, j, cube);
+				y = j;
 			}
 			x = i;
 		}
-        graphics.setStroke(new BasicStroke(5));
-        graphics.draw(grid);
-        graphics.drawString(s + _buttons, infos.get(0) + x*cubeSize + s.length(), infos.get(1) + (y+1)*cubeSize + cubeSize/3);
+		graphics.setStroke(new BasicStroke(5));
+		graphics.draw(grid);
+		graphics.drawString(s + _buttons, infos.get(0) + x * cubeSize + s.length(),
+				infos.get(1) + (y + 1) * cubeSize + cubeSize / 3);
 	}
-	
+
 	/**
 	 * The function draws a piece on the QuiltBoard on the (x, y) coordinates
-	 * @param graphics 
-	 * @param piece the piece to draw
-	 * @param x 
+	 * 
+	 * @param graphics
+	 * @param piece    the piece to draw
+	 * @param x
 	 * @param y
 	 */
 	public void drawPiece(Graphics2D graphics, Piece piece, int x, int y) {
 		var infos = getInfos(topLeftX + width, topLeftY, topLeftY + height);
-		float cubeSize = infos.get(1) / _size; 
-		piece.SetGraphicalProperties(infos.get(0) + x * cubeSize, infos.get(2) + y*cubeSize, cubeSize);
+		float cubeSize = infos.get(1) / _size;
+		piece.SetGraphicalProperties(infos.get(0) + x * cubeSize, infos.get(2) + y * cubeSize, cubeSize);
 		piece.draw(graphics);
 	}
-	
 
-	
 	/**
-	 * Checks if the quilt board possesses a seven by seven square
-	 * completely filled 
+	 * Checks if the quilt board possesses a seven by seven square completely filled
 	 * 
 	 * @return true if yes, false if not
 	 */
@@ -187,8 +184,9 @@ public class QuiltBoard extends GraphicalObject {
 	}
 
 	/**
-	 * The function return 3 informations where to start the drawing 
-	 * and the size of the square that contains it
+	 * The function return 3 informations where to start the drawing and the size of
+	 * the square that contains it
+	 * 
 	 * @param bottomX
 	 * @param topY
 	 * @param bottomY
@@ -200,30 +198,31 @@ public class QuiltBoard extends GraphicalObject {
 		float tX = (bottomX - size) / 2;
 		return List.of(tX, size, tY);
 	}
-	
+
 	/**
-	 * The function draws a pink cube on the quiltBoard or/and just a square
-	 * at the (i, j) coordinates
+	 * The function draws a pink cube on the quiltBoard or/and just a square at the
+	 * (i, j) coordinates
+	 * 
 	 * @param graphics
 	 * @param i
 	 * @param j
-	 * @param cube the representation of the cubre
+	 * @param cube     the representation of the cubre
 	 */
 	private void drawPieceCube(Graphics2D graphics, int i, int j, Rectangle2D cube) {
 		if (_grid[j][i]) {
-        	graphics.setColor(Color.PINK);
-        	graphics.fill(cube);
-        	graphics.setColor(Color.BLACK);
-        }
-        graphics.draw(cube);
+			graphics.setColor(Color.PINK);
+			graphics.fill(cube);
+			graphics.setColor(Color.BLACK);
+		}
+		graphics.draw(cube);
 	}
-	
+
 	/**
-	 * Checks if a seven by seven square space is completely filled,
-	 * starting at the coordinates (lig,col).
+	 * Checks if a seven by seven square space is completely filled, starting at the
+	 * coordinates (lig,col).
 	 * 
 	 * @param line : starting line
-	 * @param col : starting column
+	 * @param col  : starting column
 	 * @return
 	 */
 	private boolean checkSpace(int line, int col) {
@@ -238,10 +237,8 @@ public class QuiltBoard extends GraphicalObject {
 		return true;
 	}
 
-	
 	/**
-	 * Adds the given number of buttons to the total number of buttons on the
-	 * grid.
+	 * Adds the given number of buttons to the total number of buttons on the grid.
 	 * 
 	 * @param nbButtons : number of buttons
 	 */
@@ -252,16 +249,15 @@ public class QuiltBoard extends GraphicalObject {
 		_buttons += nbButtons;
 	}
 
-	
 	/**
 	 * Checks if the piece is placeable at the (x,y) coordinates.
 	 * 
 	 * @param piece : the piece to place
-	 * @param x : x coordinates
-	 * @param y : y coordinates
+	 * @param x     : x coordinates
+	 * @param y     : y coordinates
 	 * @return true if yes, false if not
 	 */
-	private boolean isPlacebale(Piece piece, int x, int y) {
+	private boolean isPlacebale(Piece piece, int y, int x) {
 		if (!piece.fitArea(x, y, _size)) {
 			return false;
 		}

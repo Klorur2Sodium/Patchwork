@@ -16,7 +16,7 @@ import java.util.Scanner;
  */
 public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, IGameBuilder {
 	
-	private Player[] _players;
+	private IOpponent[] _opponents;
 	private Constants _chosenVersion;
 	private final Scanner _scanner;
 	
@@ -54,6 +54,7 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 			case("a") -> Constants.PHASE2;
 			case("d") -> Constants.PHASE1;
 			case("g") -> Constants.PHASE3;
+			case("s") -> Constants.PHASE4;
 			default -> Constants.DEFAULT;
 		};
 	}
@@ -67,12 +68,48 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 	public IGamePlayerSelector chooseVersion() {
 		do {
 			System.out.println("Enter 'd' to play to the demo ascii version");
-			System.out.println("'a' for the complete ascii version");
-			System.out.println("'g' for the graphic version");
+			System.out.println("      'a' to play to the complete ascii version");
+			System.out.println("      'g' to play to the graphic version with a friend");
+			System.out.println("      's' to play to the graphic version alone");
 			_chosenVersion = readVersion(_scanner.next());
 		} while(_chosenVersion == Constants.DEFAULT);
 				
 		return this;
+	}
+	
+	private void getNames(String[] names, int nbNames) {
+		for (int i = 0; i < nbNames; i++) {
+			System.out.println("Player " + (i+1) + " please enter your name :");
+			names[i] = _scanner.next();
+			if (names[i].length() > 30) {
+				System.out.println("Too long");
+				i--;
+			}
+			if (i >= 1 && names[i].equals(names[i-1])) {
+				System.out.println("Your name must be unique");
+				i--;
+			}
+		}
+	}
+	
+	private Constants readDifficulty(String choice) {
+		return switch(choice) {
+			case("1") -> Constants.INTERN;
+			case("2") -> Constants.APPRENTICE;
+			case("3") -> Constants.FELLOW;
+			case("4") -> Constants.MASTER;
+			case("5") -> Constants.LEGEND;
+			default -> Constants.DEFAULT;
+		};
+	}
+	
+	private Constants getDifficulty() {
+		Constants difficulty;
+			do {
+				System.out.println("Enter a number between 1 and 5 to select the difficulty in which you want to play");
+				difficulty = readDifficulty(_scanner.next());
+			} while(difficulty == Constants.DEFAULT);
+		return difficulty;
 	}
 	
 	/**
@@ -82,24 +119,47 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 	 * @return IGameBuilder
 	 */
 	public IGameBuilder addPlayers() {
-		
-		_players = new Player[2];
-		
-		String name1, name2;
-		do {
-			System.out.println("Player1 (Blue) please enter your name :");
-			name1 = _scanner.next();
-			System.out.println("Player2 (Red) please enter your name :");
-			name2 = _scanner.next();
-			if (name1.length() > 30 || name2.length() > 30) {
-				System.out.println("Too long");
-				name1 = name2;
+		Constants difficulty;
+		var names = new String[2];
+		_opponents = new IOpponent[2];
+		switch(_chosenVersion) {
+		case PHASE4 -> {
+			getNames(names, 1);
+			difficulty = getDifficulty();
+			_opponents[0] = new Player(names[0], "Blue");
+			_opponents[1] = new Automa(difficulty, 54);
+		  }
+		default -> {
+			getNames(names, 2);
+			_opponents[0] = new Player(names[0], "Blue");
+			_opponents[1] = new Player(names[1], "Red");
 			}
-		} while (name1.equals(name2));
-		_players[0] = new Player(name1, "Blue");
-		_players[1] = new Player(name2, "Red");
+		}
 		
 		return this;
+	}
+	
+
+	private Constants readDeck(String choice) {
+		return switch(choice) {
+			case("n") -> Constants.NORMAL_DECK;
+			case("t") -> Constants.TACTICAL_DECK;
+			default -> Constants.DEFAULT;
+		};
+	}
+	
+	private Constants chooseDeck() {
+		Constants chosenDeck;
+		if (_chosenVersion != Constants.PHASE4) {
+			return Constants.DEFAULT;
+		}
+		
+		do {
+			System.out.println("Enter 'n' to play with the normal deck");
+			System.out.println("      't' to play with the tactical deck");
+			chosenDeck = readDeck(_scanner.next());
+		} while(chosenDeck == Constants.DEFAULT);
+		return chosenDeck;
 	}
 	
 	/**
@@ -108,16 +168,20 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 	 * @return Game
 	 */
 	public Game build() {
+		var chosenDeck = chooseDeck();
 		var timeBoard = new TimeBoard();
 		var pieces = PieceHandler.Handler();
-		var players = new PlayerHandler(_players, !_chosenVersion.equals("d"));
+		var players = new OpponentHandler(_opponents, !_chosenVersion.equals("d"));
+		var cards = new CardHandler();
 		
-		var boardFile = _chosenVersion == Constants.PHASE1 ? "load_time_board_demo" :  "load_time_board";
+		var boardFile = _chosenVersion == Constants.PHASE1 ? "load_time_board_demo" : "load_time_board";
 		var pieceFile = _chosenVersion == Constants.PHASE1 ? "load_phase1" : "load_Normal";
+		var cardFile = (chosenDeck == Constants.DEFAULT) ? null : 
+									 (chosenDeck == Constants.NORMAL_DECK) ? "load_normal_deck" : "load_tactical_deck" ;
 		
-		init(boardFile, pieceFile, timeBoard, pieces, players);
+		init(boardFile, pieceFile, cardFile, timeBoard, pieces, players, cards);
 		
-		return new Game(timeBoard, players, pieces, _chosenVersion); 
+		return new Game(timeBoard, players, pieces, cards, _chosenVersion); 
 	}
 	
 	/**
@@ -129,10 +193,25 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 	 * @param pieceHandler : the piece handler
 	 * @param players : the list containing the players
 	 */
-	private void init(String boardFile, String pieceFile, TimeBoard timeBoard, PieceHandler pieceHandler, PlayerHandler players) {
+	private void init(String boardFile, String pieceFile, String cardFile, TimeBoard timeBoard, PieceHandler pieceHandler, 
+										OpponentHandler players, CardHandler cards) {
 		initTimeBoard(boardFile, timeBoard);
 		initPieceHandler(pieceFile, pieceHandler);
 		timeBoard.initPlayerPawns(players, 2);
+		initCards(cards, cardFile);
+	}
+	
+	private void initCards(CardHandler cards, String file) {
+		try {
+			if (file != null) {
+				cards.loadCards(Path.of(file));
+			}
+		} catch (IOException e) {
+			System.err.println(e.getMessage());
+			System.exit(1);
+			_scanner.close();
+			return;
+		}
 	}
 	
 	/**
@@ -163,7 +242,6 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 			piecHandler.loadPieces(Path.of(file));
 			Collections.shuffle(piecHandler.getPieces());
 		} catch (IOException e) {
-			System.out.println("pitié");
 			System.err.println(e.getMessage());
 			System.exit(1);
 			_scanner.close();

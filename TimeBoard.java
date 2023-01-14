@@ -61,11 +61,11 @@ public class TimeBoard extends GraphicalObject {
 	 * @param playerHandler : player handler
 	 * @param size : size
 	 */
-	public void initPlayerPawns(PlayerHandler playerHandler, int size) {
+	public void initPlayerPawns(OpponentHandler playerHandler, int size) {
 		Objects.requireNonNull(playerHandler);
 
 		for (int i = size - 1; i >= 0; i--) {
-			_board.get(0).add(playerHandler.getPlayerIndex(i));
+			_board.get(0).add(playerHandler.getOpponentIndex(i));
 		}
 	}
 

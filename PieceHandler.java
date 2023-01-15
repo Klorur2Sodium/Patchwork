@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -13,8 +14,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * This class stores all the pieces in a list as well as the position of the
- * neutral pawn.
+ * This class stores all the pieces in a list as well as
+ * the position of the neutral pawn. 
  * 
  * @author COUSSON Sophie
  * @author FRAIZE Victor
@@ -26,8 +27,8 @@ public class PieceHandler extends GraphicalObject {
 	private int _piecesDisplayed;
 	private int _posNeutralPawn;
 	private boolean _display;
-
-	private final static int selectableNumber = 3;
+	
+	private final static int selectableNumber = 3; 
 
 	/**
 	 * Constructs a new PieceHandler.
@@ -48,6 +49,14 @@ public class PieceHandler extends GraphicalObject {
 	}
 
 	/**
+	 * The method return the neutral pawn's position
+	 * @return int
+	 */
+	public int getPosNeutralPawn() {
+ 		return _posNeutralPawn;
+ 	}
+	
+	/**
 	 * Getter for the size of the list pieces.
 	 * 
 	 * @return size
@@ -65,22 +74,15 @@ public class PieceHandler extends GraphicalObject {
 		return _pieces;
 	}
 
-	public int getPosNeutralPawn() {
-		return _posNeutralPawn;
-	}
-
 	/**
-	 * If the given index is greater or equal to the size of the list returns the
-	 * index minus the size
+	 * If the given index is greater or equal to the size of the list returns the index
+	 * minus the size
 	 * 
 	 * @param index : index you want to test
 	 * @return real Index
 	 */
 	private int getRealIndex(int index) {
-		while (index >= _pieces.size()) {
-			index -= _pieces.size();
-		}
-		return index;
+		return (index >= _pieces.size()) ? index - _pieces.size() : index;
 	}
 
 	/**
@@ -96,24 +98,36 @@ public class PieceHandler extends GraphicalObject {
 		}
 		return _pieces.get(index);
 	}
-
+	
+	/**
+	 * the method returns the list of the pieces the player can choose
+	 * @return ArrayList<Piece>
+	 */
 	public ArrayList<Piece> getSelectablePieces() {
-		var lst = new ArrayList<Piece>();
-		for (int i = 0; i < 3 && i < _pieces.size(); i++) {
-			lst.add(this.getPiece(_posNeutralPawn + i));
-		}
+ 		var lst = new ArrayList<Piece>();
+ 		for (int i = 0; i < 3 && i < _pieces.size(); i++) {
+ 			lst.add(this.getPiece(_posNeutralPawn + i));
+ 		}
 
-		return lst;
-	}
-
+ 		return lst;
+ 	}
+	
+	/**
+	 * the function returns the state of the display
+	 * @return
+	 */
 	public boolean getDisplay() {
 		return _display;
 	}
-
+	
+	/**
+	 * the function sets the display 
+	 * @param value
+	 */
 	public void setDisplay(boolean value) {
 		_display = value;
 	}
-
+	
 	/**
 	 * Adds the given piece to the list of pieces.
 	 * 
@@ -126,7 +140,7 @@ public class PieceHandler extends GraphicalObject {
 	}
 
 	/**
-	 * Removes the non null given piece.
+	 * Removes the non null given piece. 
 	 * 
 	 * @param p : the piece you want to remove
 	 */
@@ -136,9 +150,10 @@ public class PieceHandler extends GraphicalObject {
 	}
 
 	/**
-	 * Initializes the list of pieces by parsing the lines of a file.
+	 * Initializes the list of pieces by parsing the lines
+	 * of a file.
 	 * 
-	 * @param path : path to the file
+	 * @param path : path to the file 
 	 * @throws IOException : if file not find
 	 */
 	public void loadPieces(Path path) throws IOException {
@@ -151,7 +166,7 @@ public class PieceHandler extends GraphicalObject {
 			}
 		}
 	}
-
+	
 	/**
 	 * Increases the position of the neutral pawn by the given number of moves
 	 * 
@@ -161,10 +176,9 @@ public class PieceHandler extends GraphicalObject {
 		if (nbMove < 0) {
 			throw new IllegalArgumentException("The neutral pawn must only move forward");
 		}
-
 		_posNeutralPawn = getRealIndex(_posNeutralPawn + nbMove);
 	}
-
+	
 	/**
 	 * Displays all the pieces and their informations.
 	 * 
@@ -174,25 +188,52 @@ public class PieceHandler extends GraphicalObject {
 		var boardBuilder = new AsciiPieceDisplayer();
 		boardBuilder.display(captions);
 	}
-
+	
 	/**
-	 * the function draws a line from the end of the quiltboard to the end of the
-	 * window
-	 * 
+	 * The fuction returns an array of the possible 
+	 * pieces you can create with 4 blocs
+	 * @return Piece[]
+	 */
+	public Piece[] cubePieces() {
+		Piece pieces[] = new Piece[10];
+		int i = 0;
+		try {
+			try (var reader = Files.newBufferedReader(Path.of("pieces_4_cubes"))) {
+				String line;
+				while ((line = reader.readLine()) != null) {
+					var p = new Piece();
+					p.parseLine(line);
+					pieces[i] = p;
+					i++;
+				}
+			}
+		} catch (IOException e) {
+			System.err.println(e.getMessage());
+			System.exit(1);
+			return null;
+		}
+		return pieces;
+	}
+	
+	
+	
+	
+	
+	/**
+	 * the function draws a line from the end of the quiltboard to the end of the window
 	 * @param context
 	 * @param x
 	 * @param height
 	 */
 	private void drawDelimitation(Graphics2D graphics, float x, float height) {
 		var line = new Line2D.Float(x, Constants.BOX_SIZE.getValue(), x, height - 5);
-		graphics.setStroke(new BasicStroke(5));
-		graphics.setColor(Color.BLACK);
-		graphics.draw(line);
+			graphics.setStroke(new BasicStroke(5));
+    		graphics.setColor(Color.BLACK);
+    		graphics.draw(line);
 	}
-
+	
 	/**
 	 * The function draws the PieceHandler
-	 * 
 	 * @param context
 	 * @param topX
 	 * @param width
@@ -208,7 +249,7 @@ public class PieceHandler extends GraphicalObject {
 		for (int i = 0; i < _piecesDisplayed && i < _posNeutralPawn + _pieces.size(); i++) {
 			var index = getRealIndex(i + _posNeutralPawn);
 			var piece = _pieces.get(index);
-			if (y + piece.getYSize() >= height) {
+			if (y + piece.getYSize() >=  height) {
 				return;
 			}
 			if (piece.getXSize() * Constants.PIECE_SQUARE.getValue() + x >= width) {
@@ -219,12 +260,10 @@ public class PieceHandler extends GraphicalObject {
 			piece.SetGraphicalProperties(x, y, Constants.PIECE_SQUARE.getValue());
 			piece.draw(graphics);
 			x += piece.getXSize() * Constants.PIECE_SQUARE.getValue() + 50;
-			biggestY = (piece.getYSize() * Constants.PIECE_SQUARE.getValue() > biggestY)
-					? piece.getYSize() * Constants.PIECE_SQUARE.getValue()
-					: biggestY;
+			biggestY = (piece.getYSize() * Constants.PIECE_SQUARE.getValue() > biggestY)? piece.getYSize()  * Constants.PIECE_SQUARE.getValue() : biggestY; 
 		}
 	}
-
+	
 	public void action(Graphics2D graphics, float height, float width, int number) {
 		if (_piecesDisplayed < number) {
 			return;
@@ -232,11 +271,12 @@ public class PieceHandler extends GraphicalObject {
 		var index = getRealIndex(number + _posNeutralPawn);
 		_pieces.get(index).drawInformations(graphics, height, width);
 	}
-
+	
 	/**
 	 * This class handles the graphic Ascii methods
 	 */
 	private class AsciiPieceDisplayer {
+		
 		/**
 		 * Displays all the pieces and their informations.
 		 * 
@@ -250,7 +290,7 @@ public class PieceHandler extends GraphicalObject {
 			displayPieces();
 
 		}
-
+		
 		/**
 		 * Returns a String that contains the captions.
 		 * 
@@ -264,11 +304,11 @@ public class PieceHandler extends GraphicalObject {
 			builder.append("  b : number of buttons on the piece\n");
 			return builder.toString();
 		}
-
+		
 		/**
 		 * Returns a String with the numbers that number the first 3 pieces.
 		 * 
-		 * @return
+		 * @return 
 		 */
 		private String displaySelectablePiecesNumber() {
 			var builder = new StringBuilder();
@@ -280,7 +320,7 @@ public class PieceHandler extends GraphicalObject {
 			builder.append("\n");
 			return builder.toString();
 		}
-
+		
 		/**
 		 * Returns a string containing a line of all the pieces we want to display
 		 * 
@@ -289,7 +329,7 @@ public class PieceHandler extends GraphicalObject {
 		private String bodyString() {
 			var builder = new StringBuilder();
 			int index;
-
+			
 			for (int line = 0; line < getBiggestPiece(); line++) {
 				for (int j = 0; j < _piecesDisplayed && j < _pieces.size(); j++) {
 					index = getRealIndex(j + _posNeutralPawn);
@@ -299,7 +339,7 @@ public class PieceHandler extends GraphicalObject {
 			}
 			return builder.toString();
 		}
-
+		
 		/**
 		 * Gets the biggest height out of the 12 first pieces.
 		 * 

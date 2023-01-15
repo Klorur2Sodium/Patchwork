@@ -41,6 +41,14 @@ public final class Player extends GraphicalObject implements IOpponent {
 	}
 
 	/**
+	 * The function sets the player position to another position
+	 * @param position
+	 */
+	public void setPosition(int position) {
+		_position = position;
+	}
+	
+	/**
 	 * Getter for the name of the player
 	 * 
 	 * @return name of the player
@@ -94,6 +102,28 @@ public final class Player extends GraphicalObject implements IOpponent {
 		return (_specialTile) ? partialScore : partialScore + 7;
 	}
 
+	/**
+	 * The function add or retrieve nbButton to the buttonCount of the player
+	 * @param nbButton
+	 * @param add
+	 */
+	public void setButtons(int nbButton, boolean add) {
+		if (add) {
+			_buttonsCount += nbButton;
+		} else {
+			_buttonsCount -= nbButton;
+		}
+	}
+	
+	/**
+	 * The function sets the quiltBoard
+	 * @param board
+	 */
+	public void setQuiltBoard(QuiltBoard board) {
+		Objects.requireNonNull(board);
+		_quiltBoard = board;
+	}
+	
 	/**
 	 * Checks whether or not the player has the money to purchase a piece
 	 * 
@@ -163,14 +193,26 @@ public final class Player extends GraphicalObject implements IOpponent {
 		move(scanner, nbMoves, timeBoard, version);
 	}
 	
+	/**
+	 * Handles the action skip of the player during buying phase.
+	 * return null if the player didn't walked on a patch the patch otherwise
+	 * @param nbMoves
+	 * @param timeBoard
+	 * @return Piece
+	 */
 	public Piece skipTurn(int nbMoves, TimeBoard timeBoard) {
 		Objects.requireNonNull(timeBoard);
 		if (nbMoves < 0) {
 			throw new IllegalArgumentException("the player can't move back");
 		}
-
-		earnButtons(nbMoves);
-		return move(nbMoves, timeBoard);
+		var initial = _position;
+		var patch = move(nbMoves, timeBoard);
+		if (timeBoard.isDoubleBox(_position)) {
+			earnButtons((_position - initial)*2);
+		} else {
+			earnButtons(_position - initial);
+		}
+		return patch;
 	}
 
 	/**
@@ -180,13 +222,17 @@ public final class Player extends GraphicalObject implements IOpponent {
 		earnButtons(_wage);
 	}
 	
+	/**
+	 * The method adds the special tile to the player if can have it
+	 * @return boolean
+	 */
 	public boolean updateSpeTile() {
-		if (_quiltBoard.checkSpecialTile()) {
-			addSpecialTile();
-			return true;
-		}
-		return false;
-	}
+ 		if (_quiltBoard.checkSpecialTile()) {
+ 			addSpecialTile();
+ 			return true;
+ 		}
+ 		return false;
+ 	}
 	
 	/**
 	 * The function buys a piece and and moves the player
@@ -197,7 +243,7 @@ public final class Player extends GraphicalObject implements IOpponent {
 	public Piece recoverPiece(Piece piece, TimeBoard timeBoard) {
 		_buttonsCount -= piece.getCost();
 		_wage += piece.getButtons();
-		return move(piece.getMoves(), timeBoard);
+		return  move(piece.getMoves(), timeBoard);
 	}
 
 	/**
@@ -296,6 +342,9 @@ public final class Player extends GraphicalObject implements IOpponent {
 			_position++;
 			currentBox = timeBoard.getBoard().get(_position);
 			patch = updatePatch(currentBox);
+			if (currentBox.freeze()) {
+				break;
+			}
 		}
 		timeBoard.getBoard().get(_position).add(this);
 		return patch;
@@ -423,7 +472,7 @@ public final class Player extends GraphicalObject implements IOpponent {
 				x = -1;
 				y = -1;
 			}
-		} while (!_quiltBoard.addPiece(piece, y - 1, x - 1));
+		} while (!_quiltBoard.addPiece(piece, x - 1, y - 1));
 		_quiltBoard.display();
 	}
 	

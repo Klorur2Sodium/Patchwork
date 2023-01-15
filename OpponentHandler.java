@@ -82,13 +82,72 @@ public class OpponentHandler extends GraphicalObject {
 	/**
 	 * Updates the current player.
 	 */
-	public void updateCurrentPlayer() {
-        if (_opponents[0].getPosition() > _opponents[1].getPosition()) {
-            _current =  1;
+	public void updateCurrentPlayer(TimeBoard timeBoard) {
+		if (timeBoard.isSwitchBox(_opponents[_current].getPosition())) {
+			switchPlayers(timeBoard, _opponents[_current].getPosition(), _opponents[(_current + 1)%2].getPosition());
+		}
+		if (timeBoard.isSwitchBoardBox(_opponents[_current].getPosition())) {
+			switchBoard();
+		}
+		if (_opponents[0].getPosition() > _opponents[1].getPosition()) {
+			_current =  1;
         } else if (_opponents[0].getPosition() < _opponents[1].getPosition()) {
-            _current =  0;
+        	_current =  0;
         }
+		WinLose(timeBoard);
     }
+	
+	/**
+	 * The function returns true if the current player is on a box 
+	 * containing the special status CHANCE
+	 * @param timeBoard
+	 * @return boolean
+	 */
+	public boolean hasCurrentPlayerChance(TimeBoard timeBoard) {
+		return timeBoard.isChanceBox(_opponents[_current].getPosition());
+	}
+	
+	/**
+	 * the function switches the players positions
+	 * @param timeBoard
+	 * @param positionCurrent
+	 * @param positionNext
+	 */
+	private void switchPlayers(TimeBoard timeBoard, int positionCurrent, int positionNext) {
+		timeBoard.getBoard().get(positionCurrent).remove(_opponents[_current]);
+		timeBoard.getBoard().get(positionNext).add(_opponents[_current]);
+		timeBoard.getBoard().get(positionCurrent).add(_opponents[(_current+1)%2]);
+		timeBoard.getBoard().get(positionNext).remove(_opponents[(_current+1)%2]);
+		_opponents[_current].setPosition(positionNext);
+		_opponents[(_current+1)%2].setPosition(positionCurrent);
+	}
+	
+	/**
+	 * the function switch the players boards
+	 */
+	private void switchBoard() {
+		var currentBoard = _opponents[_current].getQuiltboard();
+		var otherBoard = _opponents[(_current+1)%2].getQuiltboard();
+		_opponents[_current].setQuiltBoard(otherBoard);
+		_opponents[(_current+1)%2].setQuiltBoard(currentBoard);
+	}
+	
+	/**
+	 * the function increments and decrement the correct player buttonCount
+	 * if a player is on box WinLose
+	 * @param timeBoard
+	 */
+	private void WinLose(TimeBoard timeBoard) {
+		var res = timeBoard.isWinLoseBox(_opponents[_current].getPosition()); 
+		if (res == 1) {
+			_opponents[_current].setButtons(_opponents[(_current+1)%2].getButton()/2, true);
+			_opponents[(_current+1)%2].setButtons(_opponents[(_current+1)%2].getButton()/2, false);
+		} else if (res == -1){
+			_opponents[_current].setButtons(_opponents[_current].getButton()/2, false);
+			_opponents[(_current+1)%2].setButtons(_opponents[_current].getButton()/2, true);
+		}
+	}
+	
 	
 	/**
 	 * Returns the distance between the players.
@@ -157,7 +216,6 @@ public class OpponentHandler extends GraphicalObject {
 	}
 	
 }
-
 
 
 

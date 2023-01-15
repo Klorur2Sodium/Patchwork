@@ -24,7 +24,6 @@ public class Piece extends GraphicalObject {
 	private byte ySize;
 	private Color _color;
 	
-
 	/**
 	 * Getter for the cost of the piece
 	 * 
@@ -83,20 +82,20 @@ public class Piece extends GraphicalObject {
 	}
 	
 	/**
-	 * Returns the total number of body parts that the piece contains.
-	 * @return number of body parts
-	 */
-	public int getNumberOfBodyParts() {
-		var nbBodyParts = 0;
-		for (int i = 0; i < xSize; i++) {
-			for (int j = 0; j < ySize; j++) {
-				if (_body[i][j]) {
-					nbBodyParts++;
-				}
-			}
-		}
-		return nbBodyParts;
-	}
+ 	 * Returns the total number of body parts that the piece contains.
+ 	 * @return number of body parts
+ 	 */
+ 	public int getNumberOfBodyParts() {
+ 		var nbBodyParts = 0;
+ 		for (int i = 0; i < xSize; i++) {
+ 			for (int j = 0; j < ySize; j++) {
+ 				if (_body[i][j]) {
+ 					nbBodyParts++;
+ 				}
+ 			}
+ 		}
+ 		return nbBodyParts;
+ 	}
 	
 	/**
 	 * Creates a new piece with the stats of the current piece,
@@ -323,12 +322,6 @@ public class Piece extends GraphicalObject {
 		return builder.toString() + spacesBody();
 	}
 
-	/**
-	 * The function draws the piece on the coordinates (x, y)
-	 * @param graphics
-	 * @param x
-	 * @param y
-	 */
 	@Override
 	protected void onDraw(Graphics2D graphics) {
 		for (var i = 0; i < xSize; i++) {

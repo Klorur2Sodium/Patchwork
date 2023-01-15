@@ -41,6 +41,83 @@ public class TimeBoard extends GraphicalObject {
 	}
 
 	/**
+	 * The function returns an int representing the value Win/Lose of the box situated 
+	 * in _board(position) 
+	 * @param position
+	 * @return 0 1 or -1
+	 */
+	public int isWinLoseBox(int position) {
+		if (position < 0 || position >= _board.size()) {
+			throw new IllegalArgumentException("position out of the board");
+		}
+		return _board.get(position).winLose();
+	}
+	
+	/**
+	 * The function return a boolean that indicates if the position given
+	 * correspond to a box with the special status DOUBLE
+	 * @param position
+	 * @return boolean
+	 */
+	public boolean isDoubleBox(int position) {
+		return _board.get(position).isDouble();
+	}
+	
+	/**
+	 * The function returns a boolean that indicates if the position given
+	 * correspond to a box with the special status SWITCH_POSITION
+	 * @param position
+	 * @return boolean
+	 */
+	public boolean isSwitchBox(int position) {
+		return _board.get(position).isSwitch();
+	}
+	
+	/**
+	 * The function returns a boolean that indicates if the position given
+	 * correspond to a box with the special status DRAW
+	 * @param position
+	 * @return boolean
+	 */
+	public boolean isDrawBox(int position) {
+		return _board.get(position).isDraw();
+	}
+	
+	/**
+	 * The function returns a boolean that indicates if the position given c
+	 * correspond to a box with the special status CHANCE
+	 * @param position
+	 * @return boolean
+	 */
+	public boolean isChanceBox(int position) {
+		return _board.get(position).isChance();
+	}
+	
+	/**
+	 * The function returns a boolean that indicates if the position given
+	 * correspond to a box with the special status SWITCH_BOARD
+	 * @param position
+	 * @return boolean
+	 */
+	public boolean isSwitchBoardBox(int position) {
+		return _board.get(position).isSwitchBoard();
+	}
+	
+	/**
+	 * Initializes the players at position 0 in the board
+	 * 
+	 * @param playerHandler : player handler
+	 * @param size : size
+	 */
+	public void initPlayerPawns(OpponentHandler playerHandler, int size) {
+		Objects.requireNonNull(playerHandler);
+
+		for (int i = size - 1; i >= 0; i--) {
+			_board.get(0).add(playerHandler.getOpponentIndex(i));
+		}
+	}
+	
+	/**
 	 * Initializes the board by parsing the given file
 	 * 
 	 * @param path : path of the file
@@ -54,18 +131,34 @@ public class TimeBoard extends GraphicalObject {
 			}
 		}
 	}
-
+	
 	/**
-	 * Initializes the players at position 0 in the board
-	 * 
-	 * @param playerHandler : player handler
-	 * @param size : size
+	 * The function adds a special status to some boxes
 	 */
-	public void initPlayerPawns(OpponentHandler playerHandler, int size) {
-		Objects.requireNonNull(playerHandler);
-
-		for (int i = size - 1; i >= 0; i--) {
-			_board.get(0).add(playerHandler.getOpponentIndex(i));
+	public void addSpecialBox() {
+		SpecialeBox[] secondThird = {SpecialeBox.WIN_LOSE, SpecialeBox.FREEZE, SpecialeBox.DOUBLE};
+		SpecialeBox[] lastThird = {SpecialeBox.SWITCH_POSITION, SpecialeBox.CHANCE, SpecialeBox.SWITCH_BOARD, SpecialeBox.DRAW};
+		addBoxToTheBoard(secondThird, _board.size()/3, _board.size()*2/3);
+		addBoxToTheBoard(lastThird, _board.size()/3*2, _board.size());
+	}
+	
+	/**
+	 * The function adds the status to random places on the timeBoard
+	 * @param third array of special status that are suppose to be set in one third of the board 
+	 * @param min the starting point
+	 * @param max the end
+	 */
+	private void addBoxToTheBoard(SpecialeBox[] third, int min, int max) {
+		int i = 0;
+		while (true) {
+			int rand = min + (int)(Math.random() * (36 - 18));
+			if (_board.get(rand).getSpecial() == null) {
+				_board.get(rand).setSpecial(third[i]);
+				i++;
+			}
+			if (i == third.length) {
+				break;
+			}
 		}
 	}
 
@@ -87,11 +180,11 @@ public class TimeBoard extends GraphicalObject {
 	 */
 	private void parseLine(String line) {
 		var boxesStatus = line.split(",");
-
 		for (var boxStatus : boxesStatus) {
 			add(new Box(boxStatus.charAt(0)));
 		}
 	}
+	
 
 	/* Graphic method - Ascii Version */
 
@@ -115,7 +208,6 @@ public class TimeBoard extends GraphicalObject {
 		}
 		display(posCurrent);
 	}
-	
 	
 	/**
 	 * The function returns the number of boxes it's necessary to print
@@ -188,12 +280,6 @@ public class TimeBoard extends GraphicalObject {
 		graphics.draw(line);
 	}
 	
-	/**
-	 * The function draws the TimeBoard
-	 * @param context
-	 * @param width
-	 * @param posCurrent position of the current player 
-	 */
 	@Override
 	protected void onDraw(Graphics2D graphics) {
 		int box = Constants.BOX_SIZE.getValue();
@@ -202,7 +288,6 @@ public class TimeBoard extends GraphicalObject {
 				.filter(i -> _board.get(i).hasPlayer())
 				.findFirst()
 				.orElse(-1);
-		
 		int size = getRemainningSize(firstPlayerIdx);
 		Line2D line = new Line2D.Float(5, box, width - 5, box);
 		graphics.setStroke(new BasicStroke(5));

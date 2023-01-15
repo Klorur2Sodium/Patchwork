@@ -59,6 +59,25 @@ public class Menu extends GraphicalObject {
 		displayMenuEntry(graphics, x, y, "Move", "Arrows");
 	}
 	
+	public void drawMenu(Graphics2D graphics) {
+		int yPadding = 50;
+		var x = topLeftX + 10;
+		var y = topLeftY + 25;
+		graphics.setFont(new Font("default", Font.BOLD, 25));
+		int menuWidth = getStringWidth(graphics, "Menu");
+		var cube = new Rectangle2D.Float(topLeftX, topLeftY, topLeftX + width, height);
+		graphics.setColor(Color.GRAY);
+		graphics.fill(cube);
+		graphics.setColor(Color.BLACK);
+		graphics.draw(cube);
+		graphics.drawString("Menu", (topLeftX + width - menuWidth) / 2, y);
+		y += yPadding;
+		graphics.setFont(new Font("default", Font.BOLD, 12));
+		displayMenuEntry(graphics, x, y, "Select", "SPACE");
+		y += yPadding;
+		displayMenuEntry(graphics, x, y, "Move", "Arrows");
+	}
+	
 	private int getStringWidth(Graphics2D graphics, String text) {
 		return graphics.getFontMetrics().stringWidth(text);
 	}

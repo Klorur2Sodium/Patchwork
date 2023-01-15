@@ -79,20 +79,78 @@ public class PlayerHandler extends GraphicalObject {
 	/**
 	 * Updates the current player.
 	 */
-	public void updateCurrentPlayer() {
-        if (_players[0].getPosition() > _players[1].getPosition()) {
-            _current =  1;
+	public void updateCurrentPlayer(TimeBoard timeBoard) {
+		if (timeBoard.isSwitchBox(_players[_current].getPosition())) {
+			switchPlayers(timeBoard, _players[_current].getPosition(), _players[(_current + 1)%2].getPosition());
+		}
+		if (timeBoard.isSwitchBoardBox(_players[_current].getPosition())) {
+			switchBoard();
+		}
+		if (_players[0].getPosition() > _players[1].getPosition()) {
+			_current =  1;
         } else if (_players[0].getPosition() < _players[1].getPosition()) {
-            _current =  0;
+        	_current =  0;
         }
+		WinLose(timeBoard);
     }
+	
+	/**
+	 * The function returns true if the current player is on a box 
+	 * containing the special status CHANCE
+	 * @param timeBoard
+	 * @return boolean
+	 */
+	public boolean hasCurrentPlayerChance(TimeBoard timeBoard) {
+		return timeBoard.isChanceBox(_players[_current].getPosition());
+	}
+	
+	/**
+	 * the function switches the players positions
+	 * @param timeBoard
+	 * @param positionCurrent
+	 * @param positionNext
+	 */
+	private void switchPlayers(TimeBoard timeBoard, int positionCurrent, int positionNext) {
+		timeBoard.getBoard().get(positionCurrent).remove(_players[_current]);
+		timeBoard.getBoard().get(positionNext).add(_players[_current]);
+		timeBoard.getBoard().get(positionCurrent).add(_players[(_current+1)%2]);
+		timeBoard.getBoard().get(positionNext).remove(_players[(_current+1)%2]);
+		_players[_current].setPosition(positionNext);
+		_players[(_current+1)%2].setPosition(positionCurrent);
+	}
+	
+	/**
+	 * the function switch the players boards
+	 */
+	private void switchBoard() {
+		var currentBoard = _players[_current].getQuiltboard();
+		var otherBoard = _players[(_current+1)%2].getQuiltboard();
+		_players[_current].setQuiltBoard(otherBoard);
+		_players[(_current+1)%2].setQuiltBoard(currentBoard);
+	}
+	
+	/**
+	 * the function increments and decrement the correct player buttonCount
+	 * if a player is on box WinLose
+	 * @param timeBoard
+	 */
+	private void WinLose(TimeBoard timeBoard) {
+		var res = timeBoard.isWinLoseBox(_players[_current].getPosition()); 
+		if (res == 1) {
+			_players[_current].setButtons(_players[(_current+1)%2].getButton()/2, true);
+			_players[(_current+1)%2].setButtons(_players[(_current+1)%2].getButton()/2, false);
+		} else if (res == -1){
+			_players[_current].setButtons(_players[_current].getButton()/2, false);
+			_players[(_current+1)%2].setButtons(_players[_current].getButton()/2, true);
+		}
+	}
 	
 	/**
 	 * Returns the distance between the players.
 	 * 
 	 * @return distance
 	 */
-	public int distanceBetweenPlayers() {
+ 	public int distanceBetweenPlayers() {
 		return Math.abs(_players[0].getPosition() - _players[1].getPosition());
 	}
 	
@@ -123,25 +181,28 @@ public class PlayerHandler extends GraphicalObject {
 		System.out.println(winner.getName() + " won with " + winner.getScore() + " points");
 	}
 	
-	/**
-	 * The function calls the drawing function of the current player
-	 * @param context
-	 * @param topX
-	 * @param topY
-	 */
 	@Override
 	protected void onDraw(Graphics2D graphics) {
 		_players[_current].SetGraphicalProperties(topLeftX, topLeftY, width, height);
 		_players[_current].draw(graphics);
 	}
 	
+	/**
+	 * The function draws a grey rectangle on the window
+	 * @param graphics
+	 */
 	public void cleanSpace(Graphics2D graphics) {
 		graphics.setColor(Color.LIGHT_GRAY);
 		var rect = new Rectangle2D.Float(0, Constants.BOX_SIZE.getValue()+10, width-10, height);
 		graphics.fill(rect);
 	}
 	
-	
+	/**
+	 * the function draw a message at the end of the game to indicate the winner
+	 * @param graphics
+	 * @param wHeight
+	 * @param wWidth
+	 */
 	public void drawVictory(Graphics2D graphics, float wHeight, float wWidth) {
 		var winner = getVictoriousPlayer();
 		var text = "Player " + winner.getName() + " you won this game with " + winner.getScore();

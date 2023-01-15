@@ -43,6 +43,44 @@ public final class Automa extends GraphicalObject implements IOpponent {
 	}
 	
 	/**
+	 * returns the number of buttons the player owns
+	 * @return the buttonsCount
+	 */
+	public int getButton() {
+		return _buttonsCount;
+	}
+	
+	/**
+	 * The function sets the player position to another position
+	 * @param position
+	 */
+	public void setPosition(int position) {
+		_position = position;
+	}
+	
+	/**
+	 * The function sets the quiltBoard
+	 * @param board
+	 */
+	public void setQuiltBoard(QuiltBoard board) {
+		Objects.requireNonNull(board);
+		// faire quelque chose
+	}
+	
+	/**
+	 * The function add or retrieve nbButton to the buttonCount of the player
+	 * @param nbButton
+	 * @param add
+	 */
+	public void setButtons(int nbButton, boolean add) {
+		if (add) {
+			_buttonsCount += nbButton;
+		} else {
+			_buttonsCount -= nbButton;
+		}
+	}
+	
+	/**
 	 * Add the given positive number to the number of buttons of the
 	 * player.
 	 *  

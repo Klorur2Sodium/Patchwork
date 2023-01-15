@@ -10,6 +10,12 @@ public sealed interface IOpponent permits Player, Automa {
 	public abstract int getPosition();
 	public abstract int getScore();
 	public abstract String getName();
+	public int getButton();
+	
+	// Setter
+	public void setPosition(int position);
+	public void setQuiltBoard(QuiltBoard board);
+	public void setButtons(int nbButton, boolean add);
 
 	//main methods of a turn
 	public abstract Piece recoverPiece(Piece piece, TimeBoard _timeBoard);

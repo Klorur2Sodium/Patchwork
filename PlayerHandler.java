@@ -78,8 +78,11 @@ public class PlayerHandler extends GraphicalObject {
 	
 	/**
 	 * Updates the current player.
+	 * 
+	 * @param timeBoard : the time board
 	 */
 	public void updateCurrentPlayer(TimeBoard timeBoard) {
+		Objects.requireNonNull(timeBoard);
 		if (timeBoard.isSwitchBox(_players[_current].getPosition())) {
 			switchPlayers(timeBoard, _players[_current].getPosition(), _players[(_current + 1)%2].getPosition());
 		}
@@ -97,18 +100,19 @@ public class PlayerHandler extends GraphicalObject {
 	/**
 	 * The function returns true if the current player is on a box 
 	 * containing the special status CHANCE
-	 * @param timeBoard
+	 * @param timeBoard : the time board
 	 * @return boolean
 	 */
 	public boolean hasCurrentPlayerChance(TimeBoard timeBoard) {
+		Objects.requireNonNull(timeBoard);
 		return timeBoard.isChanceBox(_players[_current].getPosition());
 	}
 	
 	/**
 	 * the function switches the players positions
-	 * @param timeBoard
-	 * @param positionCurrent
-	 * @param positionNext
+	 * @param timeBoard : the time board
+	 * @param positionCurrent : current position of a player
+	 * @param positionNext : next position of a player
 	 */
 	private void switchPlayers(TimeBoard timeBoard, int positionCurrent, int positionNext) {
 		timeBoard.getBoard().get(positionCurrent).remove(_players[_current]);
@@ -132,7 +136,7 @@ public class PlayerHandler extends GraphicalObject {
 	/**
 	 * the function increments and decrement the correct player buttonCount
 	 * if a player is on box WinLose
-	 * @param timeBoard
+	 * @param timeBoard : the time board
 	 */
 	private void WinLose(TimeBoard timeBoard) {
 		var res = timeBoard.isWinLoseBox(_players[_current].getPosition()); 
@@ -189,9 +193,10 @@ public class PlayerHandler extends GraphicalObject {
 	
 	/**
 	 * The function draws a grey rectangle on the window
-	 * @param graphics
+	 * @param graphics : object that calls the graphic methods.
 	 */
 	public void cleanSpace(Graphics2D graphics) {
+		Objects.requireNonNull(graphics);
 		graphics.setColor(Color.LIGHT_GRAY);
 		var rect = new Rectangle2D.Float(0, Constants.BOX_SIZE.getValue()+10, width-10, height);
 		graphics.fill(rect);
@@ -199,11 +204,12 @@ public class PlayerHandler extends GraphicalObject {
 	
 	/**
 	 * the function draw a message at the end of the game to indicate the winner
-	 * @param graphics
-	 * @param wHeight
-	 * @param wWidth
+	 * @param graphics : object that calls the graphic methods.
+	 * @param wHeight : window height
+	 * @param wWidth : window width
 	 */
 	public void drawVictory(Graphics2D graphics, float wHeight, float wWidth) {
+		Objects.requireNonNull(graphics);
 		var winner = getVictoriousPlayer();
 		var text = "Player " + winner.getName() + " you won this game with " + winner.getScore();
 		graphics.setColor(Color.LIGHT_GRAY);

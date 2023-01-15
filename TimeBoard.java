@@ -43,7 +43,7 @@ public class TimeBoard extends GraphicalObject {
 	/**
 	 * The function returns an int representing the value Win/Lose of the box situated 
 	 * in _board(position) 
-	 * @param position
+	 * @param position : position of the box
 	 * @return 0 1 or -1
 	 */
 	public int isWinLoseBox(int position) {
@@ -56,50 +56,65 @@ public class TimeBoard extends GraphicalObject {
 	/**
 	 * The function return a boolean that indicates if the position given
 	 * correspond to a box with the special status DOUBLE
-	 * @param position
+	 * @param position : position of the box
 	 * @return boolean
 	 */
 	public boolean isDoubleBox(int position) {
+		if (position < 0) {
+			throw new IllegalArgumentException("Invalid Position");
+		}
 		return _board.get(position).isDouble();
 	}
 	
 	/**
 	 * The function returns a boolean that indicates if the position given
 	 * correspond to a box with the special status SWITCH_POSITION
-	 * @param position
+	 * @param position : position of the box
 	 * @return boolean
 	 */
 	public boolean isSwitchBox(int position) {
+		if (position < 0) {
+			throw new IllegalArgumentException("Invalid Position");
+		}
 		return _board.get(position).isSwitch();
 	}
 	
 	/**
 	 * The function returns a boolean that indicates if the position given
 	 * correspond to a box with the special status DRAW
-	 * @param position
+	 * @param position : position of the box
 	 * @return boolean
 	 */
 	public boolean isDrawBox(int position) {
+		if (position < 0) {
+			throw new IllegalArgumentException("Invalid Position");
+		}
 		return _board.get(position).isDraw();
 	}
 	
 	/**
 	 * The function returns a boolean that indicates if the position given c
 	 * correspond to a box with the special status CHANCE
-	 * @param position
+	 * @param position : position of the box
 	 * @return boolean
 	 */
 	public boolean isChanceBox(int position) {
+		if (position < 0) {
+			throw new IllegalArgumentException("Invalid Position");
+		}
 		return _board.get(position).isChance();
 	}
 	
 	/**
 	 * The function returns a boolean that indicates if the position given
 	 * correspond to a box with the special status SWITCH_BOARD
-	 * @param position
+	 * @param position : position of the box
 	 * @return boolean
 	 */
 	public boolean isSwitchBoardBox(int position) {
+		if (position < 0) {
+			throw new IllegalArgumentException("Invalid Position");
+		}
 		return _board.get(position).isSwitchBoard();
 	}
 	
@@ -111,6 +126,9 @@ public class TimeBoard extends GraphicalObject {
 	 */
 	public void initPlayerPawns(OpponentHandler playerHandler, int size) {
 		Objects.requireNonNull(playerHandler);
+		if (size < 0) {
+			throw new IllegalArgumentException("Invalid size");
+		}
 
 		for (int i = size - 1; i >= 0; i--) {
 			_board.get(0).add(playerHandler.getOpponentIndex(i));
@@ -124,6 +142,7 @@ public class TimeBoard extends GraphicalObject {
 	 * @throws IOException : if file not found
 	 */
 	public void loadTimeBoard(Path path) throws IOException {
+		Objects.requireNonNull(path);
 		try (var reader = Files.newBufferedReader(path)) {
 			String line;
 			while ((line = reader.readLine()) != null) {
@@ -203,6 +222,9 @@ public class TimeBoard extends GraphicalObject {
 	 * @param posCurrent : current position
 	 */
 	public void displayTimeBoard(boolean captions, int posCurrent) {
+		if (posCurrent < 0) {
+			throw new IllegalArgumentException("Invalid position");
+		}
 		if (captions) {
 			displayCaption();
 		}
@@ -219,21 +241,24 @@ public class TimeBoard extends GraphicalObject {
 	}
 
 	/**
-	 * Displays the TimeBoard in Ascii art
+	 * Displays the TimeBoard in Ascii art.
 	 * 
-	 * @param posCurrent : current position
+	 * @param posCurrent : current position.
 	 */
 	public void display(int posCurrent) {
+		if (posCurrent < 0) {
+			throw new IllegalArgumentException("Invalid position");
+		}
 		var builder = new StringBuilder();
 		int size = getRemainningSize(posCurrent);
 
 		builder.append(printNTimes(" _____", size));
 		builder.append(printNTimes("|     ", size));
 
-		for (int i = posCurrent; i < size; i++) {
+		for (int i = posCurrent; i < posCurrent + size; i++) {
 			String asciiPawn = " ";
 			if (_board.get(i).getPlayer() != null) {
-				asciiPawn = _board.get(i).getPlayer().display(); // modification
+				asciiPawn = _board.get(i).getPlayer().display(); 
 			}
 			builder.append(_board.get(i).toString()).append("  ").append(asciiPawn).append("  ");
 		}

@@ -1,5 +1,6 @@
 package fr.uge.patchwork;
 
+import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -12,16 +13,29 @@ import java.util.Objects;
  * @author FRAIZE Victor
  */
 public record Filter(Constants filterId) {
+	/**
+	 * Construct a new filter object with the given filterId.
+	 * @param filterId : indicates the filterId of this Filter.
+	 */
 	public Filter {
 		if (filterId == Constants.DEFAULT) {
 			throw new IllegalArgumentException("filterId is invalid.");
 		}
 	}
 	
+	/**
+	 * Construct a new filter object with the given filterId in int.
+	 * @param filterIdInt : int indicating the filterId of this Filter.
+	 */
 	public Filter(int filterIdInt) {
 		this(readFilter(filterIdInt));
 	}
 	
+	/**
+	 * Parses an int into the corresponding Constants enum
+	 * @param filterIdInt
+	 * @return
+	 */
 	private static Constants readFilter(int filterIdInt) {
 		return switch(filterIdInt) {
 			case(0) -> Constants.LESS_MOVE;
@@ -40,6 +54,10 @@ public record Filter(Constants filterId) {
 	 * @return the filtered list.
 	 */
 	public ArrayList<Piece> applyFilter(ArrayList<Piece> pieces, int automaPos, int playerPos) {
+		Objects.requireNonNull(pieces);
+		if (automaPos < 0 || playerPos < 0) {
+			throw new IllegalArgumentException("Invalid position");
+		}
 		var filteredList = new ArrayList<Piece>();
 		Objects.requireNonNull(pieces);
 		if (pieces.size() < 2) {
@@ -135,5 +153,23 @@ public record Filter(Constants filterId) {
 		var newPieces = new ArrayList<Piece>();
 		newPieces.add(pieces.get(pieces.size() - 1));
 		return newPieces;
+	}
+
+	public void drawFilter(Graphics2D graphics, int x, int y) {
+		Objects.requireNonNull(graphics);
+		switch(filterId) {
+		case LESS_MOVE -> graphics.drawString("Keeps its turn", x, y);
+		case MOST_BUTTON -> {
+			graphics.drawString("Piece with the", x, y);
+			graphics.drawString("most buttons", x, y + 9);
+		}
+		case BIGGEST_PIECE -> graphics.drawString("Biggest piece", x, y);
+		case FARTHEST_PIECE -> {
+			graphics.drawString("Farthest piece from", x, y);
+			graphics.drawString("neutral token", x, y + 9);
+		}
+		default -> throw new IllegalArgumentException("Unexpected value: " + filterId);
+		}
+		
 	}
 }

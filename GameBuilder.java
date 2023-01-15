@@ -3,6 +3,7 @@ package fr.uge.patchwork;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Scanner;
 
 /**
@@ -28,6 +29,7 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 	* @return IGameVersionSelector
 	*/
 	public static IGameVersionSelector getVersionSelector(Scanner scan) {
+		Objects.requireNonNull(scan);
 		return new GameBuilder(scan);
 	}
 	
@@ -49,6 +51,11 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 		return _chosenVersion;
 	}
 	
+	/**
+	 * Parses the given String in an enum representing the chosen version of the game.
+	 * @param choice : the given String.
+	 * @return the enum representing the chosen version
+	 */
 	private Constants readVersion(String choice) {
 		return switch(choice) {
 			case("a") -> Constants.PHASE2;
@@ -79,6 +86,11 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 		return this;
 	}
 	
+	/**
+	 * Gets the names of the players by asking them and then by storing them in the given array.
+	 * @param names : Array containing the names.
+	 * @param nbNames : number of wanted names.
+	 */
 	private void getNames(String[] names, int nbNames) {
  		for (int i = 0; i < nbNames; i++) {
  			System.out.println("Player " + (i+1) + " please enter your name :");
@@ -94,6 +106,11 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
  		}
  	}
 
+	/**
+	 * Parses the given String in an enum representing the automa's difficulty.
+	 * @param choice : the given String.
+	 * @return the enum representing the automa's difficulty.
+	 */
  	private Constants readDifficulty(String choice) {
  		return switch(choice) {
  			case("1") -> Constants.INTERN;
@@ -105,6 +122,10 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
  		};
  	}
 
+ 	/**
+ 	 * Asks and then returns the difficulty of the automa.
+ 	 * @return automa's difficulty.
+ 	 */
  	private Constants getDifficulty() {
  		Constants difficulty;
  			do {
@@ -141,6 +162,11 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 		return this;
 	}
 	
+	/**
+	 * Parses the given String in an enum representing the automa's deck.
+	 * @param choice : the given String.
+	 * @return the enum representing the automa's deck.
+	 */
 	private Constants readDeck(String choice) {
  		return switch(choice) {
  			case("n") -> Constants.NORMAL_DECK;
@@ -149,6 +175,10 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
  		};
  	}
 
+	/**
+ 	 * Asks and then returns the deck used by the automa.
+ 	 * @return automa's deck, DEFAULT if not played in solo.
+ 	 */
  	private Constants chooseDeck() {
  		Constants chosenDeck;
  		if (_chosenVersion != Constants.PHASE4) {
@@ -164,7 +194,7 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
  	}
 	
 	/**
-	 * The method builds a new game
+	 * The method builds a new game.
 	 * 
 	 * @return Game
 	 */
@@ -180,7 +210,7 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 		var cardFile = (chosenDeck == Constants.DEFAULT) ? null : 
 			 (chosenDeck == Constants.NORMAL_DECK) ? "load_normal_deck" : "load_tactical_deck" ;
 		
-		init(boardFile, pieceFile, cardFile, timeBoard, pieces, players, cards);
+		init(boardFile, pieceFile, cardFile, timeBoard, pieces, players, cards, chosenDeck);
 		
 		return new Game(timeBoard, players, pieces, cards, _chosenVersion); 
 	}
@@ -195,17 +225,23 @@ public class GameBuilder implements IGameVersionSelector, IGamePlayerSelector, I
 	 * @param players : the list containing the players
 	 */
 	private void init(String boardFile, String pieceFile, String cardFile, TimeBoard timeBoard, PieceHandler pieceHandler, 
-				OpponentHandler players, CardHandler cards) {
+				OpponentHandler players, CardHandler cards, Constants deck) {
 		initTimeBoard(boardFile, timeBoard);
 		initPieceHandler(pieceFile, pieceHandler);
 		timeBoard.initPlayerPawns(players, 2);
-		initCards(cards, cardFile);
+		initCards(cards, cardFile, deck);
 	}
 	
-	private void initCards(CardHandler cards, String file) {
+	/**
+	 * Initializes the deck of cards.
+	 * @param cards : the deck to initialize.
+	 * @param file : path to the file containing the cards.
+	 * @param deck : indicates wich deck we use.
+	 */
+	private void initCards(CardHandler cards, String file, Constants deck) {
  		try {
  			if (file != null) {
- 				cards.loadCards(Path.of(file));
+ 				cards.loadCards(Path.of(file), deck);
  			}
  		} catch (IOException e) {
  			System.err.println(e.getMessage());

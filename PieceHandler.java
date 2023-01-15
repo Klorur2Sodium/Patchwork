@@ -82,7 +82,10 @@ public class PieceHandler extends GraphicalObject {
 	 * @return real Index
 	 */
 	private int getRealIndex(int index) {
-		return (index >= _pieces.size()) ? index - _pieces.size() : index;
+		while (index >= _pieces.size()) {
+			index = index - _pieces.size();
+		}
+		return index;
 	}
 
 	/**
@@ -101,7 +104,7 @@ public class PieceHandler extends GraphicalObject {
 	
 	/**
 	 * the method returns the list of the pieces the player can choose
-	 * @return ArrayList<Piece>
+	 * @return ArrayList of Piece object
 	 */
 	public ArrayList<Piece> getSelectablePieces() {
  		var lst = new ArrayList<Piece>();
@@ -136,6 +139,7 @@ public class PieceHandler extends GraphicalObject {
 	 */
 	public boolean add(Piece p) {
 		Objects.requireNonNull(p);
+		Objects.requireNonNull(p);
 		return _pieces.add(p);
 	}
 
@@ -145,6 +149,7 @@ public class PieceHandler extends GraphicalObject {
 	 * @param p : the piece you want to remove
 	 */
 	public void remove(Object p) {
+		Objects.requireNonNull(p);
 		Objects.requireNonNull(p);
 		_pieces.remove(p);
 	}
@@ -157,6 +162,7 @@ public class PieceHandler extends GraphicalObject {
 	 * @throws IOException : if file not find
 	 */
 	public void loadPieces(Path path) throws IOException {
+		Objects.requireNonNull(path);
 		try (var reader = Files.newBufferedReader(path)) {
 			String line;
 			while ((line = reader.readLine()) != null) {
@@ -216,9 +222,6 @@ public class PieceHandler extends GraphicalObject {
 	}
 	
 	
-	
-	
-	
 	/**
 	 * the function draws a line from the end of the quiltboard to the end of the window
 	 * @param context
@@ -264,7 +267,15 @@ public class PieceHandler extends GraphicalObject {
 		}
 	}
 	
+	/**
+	 * Gets a piece and draws its informations on the window.
+	 * @param graphics : object that calls the graphic methods.
+	 * @param height : height of the square in which the informations are.
+	 * @param width : width of the square in which the informations are.
+	 * @param number : max number of displayed piece.
+	 */
 	public void action(Graphics2D graphics, float height, float width, int number) {
+		Objects.requireNonNull(graphics);
 		if (_piecesDisplayed < number) {
 			return;
 		}

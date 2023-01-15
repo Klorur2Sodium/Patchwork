@@ -42,9 +42,12 @@ public final class Player extends GraphicalObject implements IOpponent {
 
 	/**
 	 * The function sets the player position to another position
-	 * @param position
+	 * @param position ! new position.
 	 */
 	public void setPosition(int position) {
+		if (position < 0) {
+			throw new IllegalArgumentException("Invalid position");
+		}
 		_position = position;
 	}
 	
@@ -103,9 +106,9 @@ public final class Player extends GraphicalObject implements IOpponent {
 	}
 
 	/**
-	 * The function add or retrieve nbButton to the buttonCount of the player
-	 * @param nbButton
-	 * @param add
+	 * The function adds or retrieves nbButton to the buttonCount of the player
+	 * @param nbButton : number of buttons to add/ retrieve
+	 * @param add : indicates if we had or retrieve buttons
 	 */
 	public void setButtons(int nbButton, boolean add) {
 		if (add) {
@@ -117,7 +120,7 @@ public final class Player extends GraphicalObject implements IOpponent {
 	
 	/**
 	 * The function sets the quiltBoard
-	 * @param board
+	 * @param board : new quilt board
 	 */
 	public void setQuiltBoard(QuiltBoard board) {
 		Objects.requireNonNull(board);
@@ -185,6 +188,8 @@ public final class Player extends GraphicalObject implements IOpponent {
 	 */
 	public void skipTurn(Scanner scanner, int nbMoves, TimeBoard timeBoard, Constants version) {
 		Objects.requireNonNull(timeBoard);
+		Objects.requireNonNull(scanner);
+		Objects.requireNonNull(version);
 		if (nbMoves < 0) {
 			throw new IllegalArgumentException("the player can't move back");
 		}
@@ -241,6 +246,8 @@ public final class Player extends GraphicalObject implements IOpponent {
 	 * @return a null or a patch waiting to be placed 
 	 */
 	public Piece recoverPiece(Piece piece, TimeBoard timeBoard) {
+		Objects.requireNonNull(timeBoard);
+		Objects.requireNonNull(piece);
 		_buttonsCount -= piece.getCost();
 		_wage += piece.getButtons();
 		return  move(piece.getMoves(), timeBoard);
@@ -384,6 +391,8 @@ public final class Player extends GraphicalObject implements IOpponent {
 	 * @return choice of the player
 	 */
 	public Constants buyingPhase(Scanner scanner, PieceHandler p) {
+		Objects.requireNonNull(p);
+		Objects.requireNonNull(scanner);
 		Constants playerChoice;
 		String s;
 		while (true) {
@@ -411,8 +420,10 @@ public final class Player extends GraphicalObject implements IOpponent {
 	 * @param version : given version of the game
 	 */
 	public void automaticPlacing(Piece piece, Scanner scanner, Constants version) {
+		Objects.requireNonNull(piece);
+		Objects.requireNonNull(version);
+		Objects.requireNonNull(scanner);
 		String userInput;
-		
 		do {
 			System.out.println("Do you want to place your piece automaticly y/n");
 			userInput = scanner.next();
@@ -456,6 +467,9 @@ public final class Player extends GraphicalObject implements IOpponent {
 	 * @param version : given version of the game
 	 */
 	public void placingPhase(Piece piece, Scanner scanner, Constants version) {
+		Objects.requireNonNull(piece);
+		Objects.requireNonNull(scanner);
+		Objects.requireNonNull(version);
 		int x, y;
 		_quiltBoard.display();
 		System.out.println(piece.bodyString());

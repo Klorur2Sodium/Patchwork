@@ -28,7 +28,6 @@ public class Box extends GraphicalObject {
 	* The method is the constructor it takes a char status and put it on the _status
 	*
 	* @param status : status of the box
-	* @param special : the special status
 	*/
 	public Box(char status) {
 		Objects.requireNonNull(status);
@@ -43,15 +42,16 @@ public class Box extends GraphicalObject {
 	
 	/**
 	 * the function sets a value on the field _special
-	 * @param special
+	 * @param special : the special status
 	 */
 	public void setSpecial(SpecialeBox special) {
+		Objects.requireNonNull(special);
 		_special = special;
 	}
 	
 	/**
 	 * the function return the special status of the box
-	 * @return _special
+	 * @return _special : the special status
 	 */
 	public SpecialeBox getSpecial() {
 		return _special;
@@ -104,7 +104,7 @@ public class Box extends GraphicalObject {
 	/**
  	 * The method removes a player form the List of players
  	 * 
- 	 * @param player to remove
+ 	 * @param opponent to remove
  	 */
  	public void remove(IOpponent opponent) {
  		Objects.requireNonNull(opponent);
@@ -134,6 +134,8 @@ public class Box extends GraphicalObject {
 	 */
 	public void boxEvent(Player player, Scanner scanner, Constants version) {
 		Objects.requireNonNull(player);
+		Objects.requireNonNull(scanner);
+		Objects.requireNonNull(version);
 
 		switch (_status) {
 		case BUTTON:

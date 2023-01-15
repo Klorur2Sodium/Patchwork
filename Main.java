@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 
 /**
- * Main class
+ * Main class.
  * 
  * @author COUSSON Sophie
  * @author FRAIZE Victor

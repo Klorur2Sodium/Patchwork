@@ -4,6 +4,13 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Objects;
 
+/**
+ * This class stores the information about the Automa. It also handles 
+ * all its action during the playing phase. Like moving, getting a piece etc...
+ * 
+ * @author COUSSON Sophie
+ * @author FRAIZE Victor
+ */
 public final class Automa extends GraphicalObject implements IOpponent {
 	private int _buttonsCount;
 	private int _turnBudget;
@@ -16,10 +23,18 @@ public final class Automa extends GraphicalObject implements IOpponent {
 	private Constants _difficulty;
 	private ArrayList<Piece> _piecesWithButtons;
 	
+	/**
+	 * Constructs a new automa using its difficulty and the size of the time board.
+	 * @param difficulty : difficulty of the automa.
+	 * @param sizeTimeBoard : number of tile in the time board.
+	 */
 	public Automa(Constants difficulty, int sizeTimeBoard) {
 		Objects.requireNonNull(difficulty);
+		if (sizeTimeBoard < 0) {
+			throw new IllegalArgumentException("invalid position");
+		}
 		_buttonsCount = 0;
-		_name = "Automate";
+		_name = "Automa";
 		_turnBudget = 0;
 		_wage = 0;
 		_pawn = new Pawn("DarkGrey");
@@ -30,20 +45,32 @@ public final class Automa extends GraphicalObject implements IOpponent {
 		_piecesWithButtons = new ArrayList<Piece>();
 	}
 	
+	/**
+	 * Getter for the position.
+	 * @return the position.
+	 */
 	public int getPosition() {
 		return _position;
 	}
 	
+	/**
+	 * Getter for the pawn.
+	 * @return the pawn.
+	 */
 	public Pawn getPawn() {
 		return _pawn;
 	}
 	
+	/**
+	 * Getter for the name.
+	 * @return the name.
+	 */
 	public String getName() {
 		return _name;
 	}
 	
 	/**
-	 * returns the number of buttons the player owns
+	 * Returns the number of buttons the player owns
 	 * @return the buttonsCount
 	 */
 	public int getButton() {
@@ -55,6 +82,9 @@ public final class Automa extends GraphicalObject implements IOpponent {
 	 * @param position
 	 */
 	public void setPosition(int position) {
+		if (position < 0) {
+			throw new IllegalArgumentException("invalid position");
+		}
 		_position = position;
 	}
 	
@@ -93,6 +123,10 @@ public final class Automa extends GraphicalObject implements IOpponent {
 		_buttonsCount += nbButtons;
 	}
 	
+	/**
+	 * Returns the total number of buttons on all the pieces that the automa acquired.
+	 * @return total number of buttons on all the pieces that the automa acquired.
+	 */
 	private int getNbButtonsPieces() {
 		var nb_buttons = 0;
 		for (int i = 0; i < _piecesWithButtons.size(); i++) {
@@ -101,26 +135,50 @@ public final class Automa extends GraphicalObject implements IOpponent {
 		return nb_buttons;
 	}
 	
+	/**
+	 * Returns the automa' score for the intern difficulty.
+	 * @return the score.
+	 */
 	private int internScore() {
-		return (_specialTile) ? 0 : 7;
+		return (_specialTile) ? 7 : 0;
 	}
 	
+	/**
+	 * Returns the automa' score for the apprentice difficulty.
+	 * @return the score.
+	 */
 	private int apprenticeScore() {
-		return _buttonsCount + ((_specialTile) ? 0 : 7);
+		return _buttonsCount + ((_specialTile) ? 7 : 0);
 	}
 	
+	/**
+	 * Returns the automa' score for the fellow difficulty.
+	 * @return the score.
+	 */
 	private int fellowScore() {
-		return _buttonsCount + _piecesWithButtons.size() + ((_specialTile) ? 0 : 7);
+		return _buttonsCount + _piecesWithButtons.size() + ((_specialTile) ? 7 : 0);
 	}
 	
+	/**
+	 * Returns the automa' score for the master difficulty.
+	 * @return the score.
+	 */
 	private int masterScore() {
-		return _buttonsCount + getNbButtonsPieces() + ((_specialTile) ? 0 : 7);
+		return _buttonsCount + getNbButtonsPieces() + ((_specialTile) ? 7 : 0);
 	}
 	
+	/**
+	 * Returns the automa' score for the legend difficulty.
+	 * @return the score.
+	 */
 	private int legendScore() {
-		return _buttonsCount + _piecesWithButtons.size() + getNbButtonsPieces() + ((_specialTile) ? 0 : 7);
+		return _buttonsCount + _piecesWithButtons.size() + getNbButtonsPieces() + ((_specialTile) ? 7 : 0);
 	}
 	
+	/**
+	 * Returns the automa' score.
+	 * @return the score.
+	 */
 	public int getScore() {
 		return switch(_difficulty) {
 		case INTERN -> internScore();
@@ -132,12 +190,11 @@ public final class Automa extends GraphicalObject implements IOpponent {
 		};
 	}
 	
+	/**
+	 * Adds a special tile to the automa by setting _specialTile to true.
+	 */
 	public void addSpecialTile() {
 		_specialTile = true;
-	}
-
-	protected void onDraw(Graphics2D graphics) {
-		
 	}
 	
 	/**
@@ -149,8 +206,8 @@ public final class Automa extends GraphicalObject implements IOpponent {
 	
 	/**
 	 * the function return a patch if the player is walking on one
-	 * @param currentBox
-	 * @return
+	 * @param currentBox : box of the time board
+	 * @return piece
 	 */
 	private Piece updatePatch(Box currentBox) {
 		switch (currentBox.getStatus()) {
@@ -196,6 +253,12 @@ public final class Automa extends GraphicalObject implements IOpponent {
 		return _turnBudget >= piece.getCost();
 	}
 
+	/**
+	 * Handles the skip turn action of the automa.
+	 * @param nbMoves : number of moves the automa has to do.
+	 * @param timeBoard : TimeBoard object representing the time board
+	 * @return a piece
+	 */
 	public Piece skipTurn(int nbMoves, TimeBoard timeBoard) {
 		Objects.requireNonNull(timeBoard);
 		if (nbMoves < 0) {
@@ -206,11 +269,21 @@ public final class Automa extends GraphicalObject implements IOpponent {
 		return move(nbMoves, timeBoard);
 	}
 	
+	/**
+	 * Updates the budget and wage of the player by using the given card.
+	 * @param card : Card containing the stats to update the automa.
+	 */
 	private void updateStatsFromCard(Card card) {
 		_wage = card.wage();
 		_turnBudget = card.turnBudget();
 	}
 	
+	/**
+	 * Returns a list of pieces that contains all the pieces that the automa can buy considering
+	 * its current budget.
+	 * @param pieces : all the selectable pieces.
+	 * @return all the buyable pieces.
+	 */
 	private ArrayList<Piece> buyablePiece(ArrayList<Piece> pieces) {
 		var lst = new ArrayList<Piece>();
 		for (int i = 0; i < 3; i++) {
@@ -221,39 +294,59 @@ public final class Automa extends GraphicalObject implements IOpponent {
 		return lst;
 	}
 	
+	/**
+	 * Gives a piece to the automa and moves it.
+	 * @param piece : gained piece.
+	 * @param timeBoard : TimeBoard object representing the time board.
+	 */
 	public Piece recoverPiece(Piece piece, TimeBoard timeBoard) {
-		if (piece.getButtons() < 1) {
-			return null;
+		Objects.requireNonNull(piece);
+		Objects.requireNonNull(timeBoard);
+		move(piece.getMoves(), timeBoard);
+		if (piece.getButtons() > 0) {
+			_piecesWithButtons.add(piece);
 		}
-		_piecesWithButtons.add(piece);
-		return move(piece.getMoves(), timeBoard);
+		return null;
 	}
 	
+	/**
+	 * Handles the buying phase of the automa.
+	 * @param pieces : list of selectable pieces.
+	 * @param playerPos : position of the player on the time board.
+	 * @param automaPos : position of the automa on the time board.
+	 * @param currentCard : Card that the automa is using.
+	 * @param timeBoard : TimeBoard object representing the time board.
+	 * @return piece
+	 */
 	public Piece buyingPhase(ArrayList<Piece> pieces, int playerPos, int automaPos, Card currentCard, TimeBoard timeBoard) {
 		Objects.requireNonNull(pieces);
 		Objects.requireNonNull(currentCard);
 		Objects.requireNonNull(timeBoard);
+		if (playerPos < 0 || automaPos < 0) {
+			throw new IllegalArgumentException("invalid position");
+		}
 		
 		Piece piece = null;
 		updateStatsFromCard(currentCard);
 		var lst = buyablePiece(pieces);
 		
 		switch(lst.size()) {
-		case 0 -> {
-			skipTurn(playerPos - automaPos + 1, timeBoard); 
-		}
-		case 1 -> {
-			piece = lst.get(0);
-			recoverPiece(piece, timeBoard);
-		}
-		default -> {
-			piece = currentCard.applyFilters(lst, automaPos, playerPos);
-			recoverPiece(piece, timeBoard);
-		}
+		case 0 -> skipTurn(playerPos - automaPos + 1, timeBoard); 
+		case 1 -> {piece = lst.get(0);
+							 recoverPiece(piece, timeBoard);
+			}
+		default -> {piece = currentCard.applyFilters(lst, automaPos, playerPos);
+			          recoverPiece(piece, timeBoard);
+			}
 		}
 		return piece;
 	}
 
+	/**
+	 * Updates the special tile of the automa by checking if it passed a certain point.
+	 * This point changes according to the difficulty of the automa.
+	 * @return true if yes, false otherwaise.
+	 */
 	public boolean updateSpeTile() {
 		if (_position >= _speTilePos) {
 			addSpecialTile();
@@ -262,9 +355,18 @@ public final class Automa extends GraphicalObject implements IOpponent {
 		return false;
 	}
 	
-//	public int automaChoice(ArrayList<Piece> pieces, Piece piece) {
-//		for (int i = 0; i < pieces.size(); i++) {
-//			if (pieces)
-//		}
-//	}
+	/**
+	 * Draws the stats of the Automaon the window.
+	 * @param graphics : object that calls the graphic methods.
+	 */
+	protected void onDraw(Graphics2D graphics) {
+		var y = topLeftY;
+		var yPadding = 20;
+		graphics.drawString("Automa's stats : " , topLeftX, y);
+		y += yPadding;
+		graphics.drawString("Current Score : " + getScore() , topLeftX, y);
+		y += yPadding;
+		graphics.drawString("Special Tile : " + ((!_specialTile) ? "Don't have it" : "Got it") , topLeftX, y);
+	}
+	
 }

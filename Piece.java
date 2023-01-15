@@ -8,22 +8,21 @@ import java.awt.geom.Rectangle2D;
 import java.util.Objects;
 
 /**
- * This class stores the information about a piece,
- * it also handles the creation of a piece from a String
- * and its rotations/ inversions.
+ * This class stores the information about a piece, it also handles the creation
+ * of a piece from a String and its rotations/ inversions.
  * 
  * @author COUSSON Sophie
  * @author FRAIZE Victor
  */
 public class Piece extends GraphicalObject {
 	private boolean[][] _body; // 1bis
-	private byte _cost; //-128 + 127
+	private byte _cost; // -128 + 127
 	private byte _buttons;
 	private byte _moves;
 	private byte xSize;
 	private byte ySize;
 	private Color _color;
-	
+
 	/**
 	 * Getter for the cost of the piece
 	 * 
@@ -68,39 +67,41 @@ public class Piece extends GraphicalObject {
 	public int getYSize() {
 		return ySize;
 	}
-	
+
 	/**
-	 * Returns the value in the body of the piece at 
-	 * the coordinates (x, y)
+	 * Returns the value in the body of the piece at the coordinates (x, y)
 	 * 
 	 * @param x : x coordinates
 	 * @param y : y coordinates
 	 * @return value at the coordinates (x, y)
 	 */
 	public boolean getBodyValue(int x, int y) {
+		if (x < 0 || y < 0) {
+			throw new IllegalArgumentException("Invalid coordinates");
+		}
 		return _body[y][x];
 	}
-	
+
 	/**
- 	 * Returns the total number of body parts that the piece contains.
- 	 * @return number of body parts
- 	 */
- 	public int getNumberOfBodyParts() {
- 		var nbBodyParts = 0;
- 		for (int i = 0; i < xSize; i++) {
- 			for (int j = 0; j < ySize; j++) {
- 				if (_body[i][j]) {
- 					nbBodyParts++;
- 				}
- 			}
- 		}
- 		return nbBodyParts;
- 	}
-	
+	 * Returns the total number of body parts that the piece contains.
+	 * 
+	 * @return number of body parts
+	 */
+	public int getNumberOfBodyParts() {
+		var nbBodyParts = 0;
+		for (int i = 0; i < xSize; i++) {
+			for (int j = 0; j < ySize; j++) {
+				if (_body[i][j]) {
+					nbBodyParts++;
+				}
+			}
+		}
+		return nbBodyParts;
+	}
+
 	/**
-	 * Creates a new piece with the stats of the current piece,
-	 * but with an empty 2 dimensional array initialized with the
-	 * given x and y
+	 * Creates a new piece with the stats of the current piece, but with an empty 2
+	 * dimensional array initialized with the given x and y
 	 * 
 	 * @param x : width of the piece
 	 * @param y : height of the piece
@@ -117,15 +118,19 @@ public class Piece extends GraphicalObject {
 		temp._color = _color;
 		return temp;
 	}
-	
+
+	/**
+	 * Returns a random color.
+	 * 
+	 * @return a class Color representing a color.
+	 */
 	private Color chooseRandomColor() {
-		Color[] colors = {Color.BLUE, Color.RED, Color.GREEN, Color.MAGENTA,
-				Color.CYAN, Color.GRAY, Color.ORANGE, Color.PINK, Color.YELLOW,
-				};
-		int rand = (int)( Math.random() * colors.length);
+		Color[] colors = { Color.BLUE, Color.RED, Color.GREEN, Color.MAGENTA, Color.CYAN, Color.GRAY, Color.ORANGE,
+				Color.PINK, Color.YELLOW, };
+		int rand = (int) (Math.random() * colors.length);
 		return colors[rand];
 	}
-	
+
 	/**
 	 * Initializes this piece with the given line
 	 * 
@@ -143,11 +148,11 @@ public class Piece extends GraphicalObject {
 	}
 
 	/**
-	 * Checks if the piece can fit in a quiltboard of the given size
-	 * at the (x,y) coordinates 
+	 * Checks if the piece can fit in a quiltboard of the given size at the (x,y)
+	 * coordinates
 	 * 
-	 * @param x : x coordinates
-	 * @param y : y coordinates
+	 * @param x    : x coordinates
+	 * @param y    : y coordinates
 	 * @param size : size of the quiltboard
 	 * @return boolean
 	 */
@@ -178,7 +183,7 @@ public class Piece extends GraphicalObject {
 	}
 
 	/**
-	 * Returns a mirrored version of this piece 
+	 * Returns a mirrored version of this piece
 	 * 
 	 * @return mirrored piece
 	 */
@@ -192,10 +197,10 @@ public class Piece extends GraphicalObject {
 		}
 		return temp;
 	}
-	
+
 	/**
-	 * Returns the String representing the body of this piece in Ascii
-	 * to display it.
+	 * Returns the String representing the body of this piece in Ascii to display
+	 * it.
 	 * 
 	 * @return Ascii representation of the piece
 	 */
@@ -211,15 +216,16 @@ public class Piece extends GraphicalObject {
 	}
 
 	/**
-	 * Finds the number of spaces needed between the description of 
-	 * each piece so everything is aligned.
+	 * Finds the number of spaces needed between the description of each piece so
+	 * everything is aligned.
 	 * 
 	 * @param type : type of the stat (cost, move, etc...)
 	 * @return String
 	 */
 	public String spacesCaption(String type) {
+		Objects.requireNonNull(type);
 		var builder = new StringBuilder();
-		int lenCaption = (_cost < 10)? Constants.SMALL_COMMENT.getValue() : Constants.BIG_COMMENT.getValue();
+		int lenCaption = (_cost < 10) ? Constants.SMALL_COMMENT.getValue() : Constants.BIG_COMMENT.getValue();
 		if (!type.equals("cost") && lenCaption == Constants.BIG_COMMENT.getValue()) {
 			builder.append(" ");
 		}
@@ -230,7 +236,7 @@ public class Piece extends GraphicalObject {
 		}
 		return builder.toString() + "  ";
 	}
-	
+
 	/**
 	 * Initializes the body by parsing the given line
 	 * 
@@ -246,7 +252,7 @@ public class Piece extends GraphicalObject {
 
 	/**
 	 * Fill the body thanks to the given line
-	 *  
+	 * 
 	 * @param line
 	 */
 	private void initPiece(String line) {
@@ -254,28 +260,28 @@ public class Piece extends GraphicalObject {
 		int x = 0, y = 0;
 		for (var elm : decomposition) {
 			switch (elm) {
-				case '1' -> {
-					_body[x][y] = true;
-					x++;
+			case '1' -> {
+				_body[x][y] = true;
+				x++;
+			}
+			case '0' -> {
+				_body[x][y] = false;
+				x++;
+			}
+			case ',' -> {
+				if (xSize != x) {
+					throw new IllegalArgumentException("invalid piece");
 				}
-				case '0' -> {
-					_body[x][y] = false;
-					x++;
-				}
-				case ',' -> {
-					if (xSize != x) {
-						throw new IllegalArgumentException("invalid piece");
-					}
-					y++;
-					x = 0;
-				}
+				y++;
+				x = 0;
+			}
 			}
 		}
 	}
 
 	/**
-	 * Finds the number of spaces needed between the pieces in the buying phase
-	 * so everything is aligned.
+	 * Finds the number of spaces needed between the pieces in the buying phase so
+	 * everything is aligned.
 	 * 
 	 * @param type
 	 * @return String
@@ -283,7 +289,7 @@ public class Piece extends GraphicalObject {
 	private String spacesBody() {
 		var space = new StringBuilder();
 		int lenCaption;
-		lenCaption = (_cost < 10)? 5 : 6;
+		lenCaption = (_cost < 10) ? 5 : 6;
 		if (xSize < lenCaption) {
 			for (int i = 0; i < lenCaption - xSize; i++) {
 				space.append(" ");
@@ -291,16 +297,16 @@ public class Piece extends GraphicalObject {
 		}
 		return space.toString() + "  ";
 	}
-	
+
 	@Override
 	public void SetGraphicalProperties(float x, float y, float w, float h) {
-		if(w != h) {
+		if (w != h) {
 			// Erreur ou
 			h = w;
 		}
 		super.SetGraphicalProperties(x, y, w, h);
 	}
-	
+
 	/**
 	 * Returns a string representing the given line in Ascii
 	 * 
@@ -327,11 +333,11 @@ public class Piece extends GraphicalObject {
 		for (var i = 0; i < xSize; i++) {
 			for (var j = 0; j < ySize; j++) {
 				if (_body[i][j]) {
-					var square = new Rectangle2D.Float(topLeftX + i * width, topLeftY + j* width, width, width);
+					var square = new Rectangle2D.Float(topLeftX + i * width, topLeftY + j * width, width, width);
 					graphics.setColor(_color);
-    				graphics.fill(square);
-    				graphics.setColor(Color.BLACK);
-    				graphics.draw(square);
+					graphics.fill(square);
+					graphics.setColor(Color.BLACK);
+					graphics.draw(square);
 				}
 			}
 		}
@@ -339,52 +345,57 @@ public class Piece extends GraphicalObject {
 
 	/**
 	 * Draws a square containing the piece informations
-	 * @param context
+	 * 
+	 * @param graphics
 	 * @param height
 	 * @param width
 	 */
 	public void drawInformations(Graphics2D graphics, float height, float width) {
-		var side = height/3*2;
-		var h = height/6;
-		var w = width/2-side/2;
-		var startWritting = w + side/3*2;
+		Objects.requireNonNull(graphics);
+		var side = height / 3 * 2;
+		var h = height / 6;
+		var w = width / 2 - side / 2;
+		var startWritting = w + side / 3 * 2;
 		float x = w;
 		float y = h;
 		var grid = new Rectangle2D.Float(x, y, side, side);
 		graphics.setColor(Color.LIGHT_GRAY);
-        graphics.fill(grid);
+		graphics.fill(grid);
 		graphics.setStroke(new BasicStroke(5));
 		graphics.setColor(Color.BLACK);
-        graphics.draw(grid);
-        
-        graphics.setFont(new Font("default", Font.BOLD, 25));
-        x+= 10; y+= 50;
-        graphics.drawString("Piece informations", x, y);
-        x = startWritting; y = h + side/2;
-        graphics.drawString("Cost : " + _cost, x, y);
-        y+= 50;
-        graphics.drawString("Moves : " + _moves, x, y);
-        y+= 50;
-        graphics.drawString("Buttons : " + _buttons, x, y);
+		graphics.draw(grid);
+
+		graphics.setFont(new Font("default", Font.BOLD, 25));
+		x += 10;
+		y += 50;
+		graphics.drawString("Piece informations", x, y);
+		x = startWritting;
+		y = h + side / 2;
+		graphics.drawString("Cost : " + _cost, x, y);
+		y += 50;
+		graphics.drawString("Moves : " + _moves, x, y);
+		y += 50;
+		graphics.drawString("Buttons : " + _buttons, x, y);
 		var res = Math.min(proportionalSize(true), proportionalSize(false));
-		
+
 		var xPos = w + 10;
-		var yPos = h + side/3;
+		var yPos = h + side / 3;
 		for (var i = 0; i < xSize; i++) {
 			for (var j = 0; j < ySize; j++) {
 				if (_body[i][j]) {
-					var square = new Rectangle2D.Float(xPos + i * res, yPos + j* res, res, res);
+					var square = new Rectangle2D.Float(xPos + i * res, yPos + j * res, res, res);
 					graphics.setColor(_color);
-    				graphics.fill(square);
-    				graphics.setColor(Color.BLACK);
-    				graphics.draw(square);
+					graphics.fill(square);
+					graphics.setColor(Color.BLACK);
+					graphics.draw(square);
 				}
 			}
 		}
 	}
-	
+
 	/**
 	 * returns the size of a cube using the reference 100px for 3 cubes
+	 * 
 	 * @param xCoordinate
 	 * @return
 	 */
@@ -398,7 +409,7 @@ public class Piece extends GraphicalObject {
 			res = ySize * size / cubeCount;
 		}
 		if (res > 100) {
-			return res-100;
+			return res - 100;
 		}
 		return res;
 	}
